@@ -9,6 +9,7 @@ import workspacesRouter from './src/routes/workspaces.js';
 import projectsRouter from './src/routes/projects.js';
 import tasksRouter from './src/routes/tasks.js';
 import ghlRouter from './src/routes/ghl.js';
+import demoRouter from './src/routes/demo.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,6 +35,7 @@ app.use('/api/workspaces', workspacesRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/tasks', tasksRouter);
 app.use('/api/ghl', ghlRouter);
+app.use('/demo', demoRouter);
 
 // SPA fallback
 app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));

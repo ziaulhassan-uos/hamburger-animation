@@ -82,6 +82,19 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   width: 100%; justify-content: center;
 }
 .btn-ghl:hover { background: var(--accent-hover); }
+.btn-demo {
+  display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px;
+  background: transparent; color: var(--text-secondary); border: 1.5px solid var(--border);
+  border-radius: var(--radius); font-weight: 500; font-size: 14px;
+  transition: all var(--transition); width: 100%; justify-content: center;
+  margin-top: 0;
+}
+.btn-demo:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.auth-divider {
+  display: flex; align-items: center; gap: 12px; margin: 16px 0;
+  color: var(--text-muted); font-size: 12px;
+}
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-top: 1px solid var(--border); }
 .auth-error { margin-top: 16px; padding: 10px 14px; background: #fef2f2; color: #dc2626; border-radius: var(--radius-sm); font-size: 13px; }
 .auth-note { margin-top: 20px; color: var(--text-muted); font-size: 12px; }
 
