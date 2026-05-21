@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskFlow — Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sw:240px;--th:56px;
+  --bg:#f1f5f9;--surface:#fff;--s2:#f8fafc;--border:#e2e8f0;--bh:#cbd5e1;
+  --sb:#0f172a;--st:#94a3b8;--sh:#f1f5f9;--sa:#6366f1;--sab:rgba(99,102,241,.15);--ss:#475569;
+  --accent:#6366f1;--ah:#4f46e5;--al:rgba(99,102,241,.1);
+  --tp:#0f172a;--ts:#64748b;--tm:#94a3b8;
+  --r:8px;--rs:5px;
+  --shadow:0 1px 3px rgba(0,0,0,.1);--sm:0 4px 6px -1px rgba(0,0,0,.1);--sl:0 10px 15px -3px rgba(0,0,0,.1);
+  --tr:150ms ease;
+}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;font-size:14px;color:var(--tp);background:var(--bg);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none} button{cursor:pointer;font-family:inherit;font-size:inherit;border:none;background:none}
+input,textarea,select{font-family:inherit;font-size:inherit}
+.hidden{display:none!important}
+
+/* Loading */
+#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#0f172a;z-index:999}
+.ll{display:flex;align-items:center;gap:12px;color:#f1f5f9;font-size:22px;font-weight:700}
+.sp{width:28px;height:28px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Layout */
+#app{display:flex;height:100vh;overflow:hidden}
+#sidebar{width:var(--sw);background:var(--sb);color:var(--st);display:flex;flex-direction:column;flex-shrink:0;transition:width var(--tr);overflow:hidden}
+#sidebar.collapsed{width:56px}
+#sidebar.collapsed .sb-brand,#sidebar.collapsed .nav-lbl,#sidebar.collapsed .acc-info,#sidebar.collapsed .nav-item span{display:none}
+.sb-head{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.sb-brand{font-size:15px;font-weight:700;color:#f1f5f9;white-space:nowrap}
+.sb-acct{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.05)}
+.acc-badge{display:flex;align-items:center;gap:10px;padding:8px;border-radius:var(--r)}
+.acc-av{width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.acc-name{font-size:13px;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-type{font-size:10px;text-transform:uppercase;letter-spacing:.05em;padding:1px 6px;border-radius:20px;background:rgba(99,102,241,.2);color:#a5b4fc}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sb-nav::-webkit-scrollbar{width:4px}
+.sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.nav-sec{padding:6px 0}
+.nav-lbl{display:flex;align-items:center;justify-content:space-between;padding:4px 16px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ss);font-weight:600}
+.nav-add{width:18px;height:18px;border-radius:4px;font-size:16px;color:var(--ss);transition:color var(--tr);display:flex;align-items:center;justify-content:center}
+.nav-add:hover{color:#f1f5f9}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 16px;color:var(--st);transition:all var(--tr);white-space:nowrap;overflow:hidden;font-size:13.5px;cursor:pointer}
+.nav-item:hover{color:var(--sh);background:rgba(255,255,255,.05)}
+.nav-item.active{color:#a5b4fc;background:var(--sab);font-weight:500}
+.ws-item{display:flex;align-items:center;gap:8px;padding:5px 16px;color:var(--st);transition:all var(--tr);cursor:pointer;font-size:13px}
+.ws-item:hover{color:var(--sh);background:rgba(255,255,255,.05)}
+.ws-item.active{color:#a5b4fc;background:var(--sab)}
+.ws-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ws-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ws-cnt{font-size:11px;color:var(--ss)}
+.sb-foot{padding:8px 0;border-top:1px solid rgba(255,255,255,.05)}
+
+/* Content */
+#content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{height:var(--th);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;gap:16px}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-right{display:flex;align-items:center;gap:16px}
+#page-title{font-size:16px;font-weight:600}
+#view{flex:1;overflow-y:auto;padding:24px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r);font-weight:500;font-size:13.5px;transition:all var(--tr);cursor:pointer}
+.btn-p{background:var(--accent);color:#fff} .btn-p:hover{background:var(--ah)}
+.btn-s{background:var(--s2);color:var(--tp);border:1px solid var(--border)} .btn-s:hover{background:var(--border)}
+.btn-d{background:#fef2f2;color:#dc2626;border:1px solid #fecaca} .btn-d:hover{background:#fee2e2}
+.btn-sm{padding:5px 12px;font-size:12.5px}
+.icon-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--rs);color:var(--ts);transition:all var(--tr)}
+.icon-btn:hover{background:var(--bg);color:var(--tp)}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+
+/* Page header */
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.ph h2{font-size:20px;font-weight:700}
+.bc{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ts)}
+.bc a{color:var(--accent);cursor:pointer}
+.bc span{color:var(--tm)}
+
+/* Dashboard */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.wc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:all var(--tr)}
+.wc:hover{box-shadow:var(--sm);transform:translateY(-1px)}
+.wch{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.wci{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.wct{font-size:15px;font-weight:600}
+.wcs{font-size:12px;color:var(--ts);margin-top:2px}
+.wc-stats{display:flex;gap:16px}
+.stat-val{font-size:20px;font-weight:700}
+.stat-lbl{font-size:11px;color:var(--ts)}
+
+/* Projects */
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.pc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all var(--tr);position:relative;overflow:hidden}
+.pc:hover{box-shadow:var(--sm);transform:translateY(-1px)}
+.pc-name{font-size:14px;font-weight:600;margin-bottom:6px}
+.pc-desc{font-size:12px;color:var(--ts);margin-bottom:14px;min-height:18px}
+.pc-foot{display:flex;align-items:center;justify-content:space-between}
+
+/* Board */
+.bt{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.vtabs{display:flex;gap:4px;padding:3px;background:var(--bg);border-radius:var(--rs)}
+.vtab{padding:5px 12px;border-radius:5px;font-size:13px;color:var(--ts);transition:all var(--tr);display:flex;align-items:center;gap:5px;cursor:pointer}
+.vtab.active{background:var(--surface);color:var(--tp);box-shadow:var(--shadow);font-weight:500}
+.board{display:flex;gap:16px;overflow-x:auto;padding-bottom:16px;min-height:calc(100vh - 220px)}
+.board::-webkit-scrollbar{height:6px}
+.board::-webkit-scrollbar-thumb{background:var(--bh);border-radius:3px}
+.col{flex-shrink:0;width:280px;display:flex;flex-direction:column;background:var(--s2);border-radius:var(--r);border:1px solid var(--border)}
+.col.over{border-color:var(--accent);background:var(--al)}
+.col-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.col-title{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.sdot{width:10px;height:10px;border-radius:50%}
+.col-cnt{font-size:12px;color:var(--tm);margin-left:auto;margin-right:4px}
+.col-body{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:100px}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.add-t{width:100%;text-align:left;padding:8px 10px;font-size:13px;color:var(--tm);border-radius:var(--rs);transition:all var(--tr);margin-top:4px;display:flex;align-items:center;gap:6px;border:1.5px dashed transparent}
+.add-t:hover{color:var(--accent);border-color:var(--accent);background:var(--al)}
+.add-col{flex-shrink:0;width:240px;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:var(--r);border:2px dashed var(--border);color:var(--tm);font-size:13px;transition:all var(--tr);align-self:flex-start;cursor:pointer}
+.add-col:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Task card */
+.tc{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;cursor:grab;transition:all var(--tr);box-shadow:var(--shadow)}
+.tc:hover{box-shadow:var(--sm);border-color:var(--bh)}
+.tc.dragging{opacity:.4}
+.tc-title{font-size:13px;font-weight:500;margin-bottom:8px;line-height:1.4}
+.tc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pb{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500}
+.pl{background:#d1fae5;color:#065f46} .pm{background:#fef3c7;color:#92400e} .ph2{background:#fee2e2;color:#991b1b} .pu{background:#ede9fe;color:#5b21b6}
+.db{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--tm)}
+.db.od{color:#dc2626}
+.tag{padding:1px 7px;border-radius:20px;font-size:11px;background:var(--bg);color:var(--ts)}
+.avs{display:flex;margin-left:auto}
+.av{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--surface);margin-left:-6px}
+.av:first-child{margin-left:0}
+.tc-loc{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--tm);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+
+/* List view */
+.ttable{width:100%;border-collapse:collapse}
+.ttable th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--tm);border-bottom:1px solid var(--border);background:var(--s2);position:sticky;top:0}
+.ttable td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ttable tr:hover td{background:var(--s2)}
+.ttable tr:last-child td{border-bottom:none}
+.tc-link{font-size:13px;font-weight:500;cursor:pointer;color:var(--tp)}
+.tc-link:hover{color:var(--accent)}
+.sp2{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+
+/* Modal */
+#mo{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal{background:var(--surface);border-radius:12px;padding:28px;width:100%;box-shadow:var(--sl);animation:min .2s ease;max-height:90vh;overflow-y:auto}
+.modal-sm{max-width:380px} .modal-md{max-width:500px} .modal-lg{max-width:700px}
+@keyframes min{from{opacity:0;transform:scale(.96) translateY(8px)}}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.mh h3{font-size:16px;font-weight:700}
+.mc{color:var(--tm);font-size:20px;line-height:1;padding:2px;cursor:pointer}
+.mc:hover{color:var(--tp)}
+.mf{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--ts);margin-bottom:6px}
+.fc{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--s2);color:var(--tp);font-size:13.5px;transition:border-color var(--tr)}
+.fc:focus{outline:none;border-color:var(--accent)}
+.fc::placeholder{color:var(--tm)}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.swatch{width:24px;height:24px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform var(--tr)}
+.swatch:hover{transform:scale(1.2)}
+.swatch.sel{border-color:var(--tp);transform:scale(1.15)}
+.td-row{display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap}
+.td-field{display:flex;flex-direction:column;gap:4px;min-width:130px}
+.td-field label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tm);font-weight:600}
+.fs,.fi{padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);background:var(--s2);color:var(--tp);font-size:13px}
+.fs:focus,.fi:focus{outline:none;border-color:var(--accent)}
+textarea.fc{resize:vertical;min-height:80px}
+
+/* Stage manager */
+.sl{display:flex;flex-direction:column;gap:8px}
+.sli{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs)}
+.scd{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.slname{flex:1;font-size:13px;font-weight:500}
+.s-badge{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--bg);color:var(--tm)}
+.sla{display:flex;gap:4px}
+
+/* Comments */
+.cs{border-top:1px solid var(--border);padding-top:20px;margin-top:4px}
+.cs h4{font-size:13px;font-weight:600;margin-bottom:12px}
+.ci{display:flex;gap:10px;margin-bottom:14px}
+.cav{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb{flex:1;background:var(--s2);border-radius:var(--rs);padding:10px 12px}
+.ca{font-size:12px;font-weight:600;margin-bottom:3px}
+.ct{font-size:13px;line-height:1.5}
+.cts{font-size:11px;color:var(--tm);margin-top:3px}
+.cir{display:flex;gap:8px;margin-top:12px}
+.cin{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--s2);font-size:13px}
+.cin:focus{outline:none;border-color:var(--accent)}
+
+/* Settings */
+.sg{display:grid;grid-template-columns:220px 1fr;gap:24px;max-width:860px}
+.sni{padding:9px 14px;border-radius:var(--rs);font-size:13.5px;color:var(--ts);cursor:pointer;transition:all var(--tr)}
+.sni:hover{background:var(--bg);color:var(--tp)}
+.sni.active{background:var(--al);color:var(--accent);font-weight:500}
+.ss{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px}
+.ss-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.ss-desc{font-size:13px;color:var(--ts);margin-bottom:20px}
+.conn{display:flex;align-items:center;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dot.on{background:#10b981} .dot.off{background:#94a3b8}
+hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+
+/* Toast */
+#tc2{position:fixed;bottom:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#1e293b;color:#f1f5f9;border-radius:var(--r);box-shadow:var(--sl);font-size:13.5px;min-width:240px;animation:tin .3s ease}
+.toast.ok{border-left:3px solid #10b981} .toast.err{border-left:3px solid #ef4444} .toast.info{border-left:3px solid #3b82f6}
+@keyframes tin{from{opacity:0;transform:translateX(20px)}}
+
+/* Empty state */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:64px 24px;color:var(--tm);text-align:center}
+.empty svg{opacity:.3}
+.empty h3{font-size:16px;font-weight:600;color:var(--ts)}
+.empty p{font-size:13px}
+.tm{color:var(--tm);font-size:12px}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="ll">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="#6366f1"/><path d="M14 24h20M24 14v20" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></svg>
+    TaskFlow
+  </div>
+  <div class="sp"></div>
+</div>
+
+<div id="app" class="hidden">
+  <aside id="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <svg width="28" height="28" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="10" fill="#6366f1"/><path d="M14 24h20M24 14v20" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></svg>
+        <span class="sb-brand">TaskFlow</span>
+      </div>
+      <button class="icon-btn" id="sb-toggle" title="Toggle sidebar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <div class="sb-acct">
+      <div class="acc-badge">
+        <div class="acc-av">DA</div>
+        <div class="acc-info">
+          <div class="acc-name">Demo Agency</div>
+          <div class="acc-type">Agency</div>
+        </div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-sec">
+        <span class="nav-lbl">Menu</span>
+        <div class="nav-item active" data-view="dashboard">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item" data-view="all-tasks">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          <span>All Tasks</span>
+        </div>
+        <div class="nav-item" data-view="settings">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span>Settings</span>
+        </div>
+      </div>
+      <div class="nav-sec">
+        <span class="nav-lbl">Workspaces <button class="nav-add" id="new-ws-btn">+</button></span>
+        <div id="ws-list"></div>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      <div class="nav-item" style="color:#475569" onclick="toast('This is a demo — no real GHL account needed!','info')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Demo Mode</span>
+      </div>
+    </div>
+  </aside>
+
+  <div id="content">
+    <header id="topbar">
+      <div class="tb-left"><h2 id="page-title">Dashboard</h2></div>
+      <div class="tb-right">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ts)">
+          <label>Sub-account:</label>
+          <select id="loc-filter" style="padding:5px 10px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:var(--surface)" onchange="applyLocFilter(this.value)">
+            <option value="">All sub-accounts</option>
+            <option value="loc-001">Client A (loc-001)</option>
+            <option value="loc-002">Client B (loc-002)</option>
+            <option value="loc-003">Client C (loc-003)</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ts)">
+          <label>Assigned to:</label>
+          <select id="user-filter" style="padding:5px 10px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:var(--surface)" onchange="applyUserFilter(this.value)">
+            <option value="">Everyone</option>
+            <option value="u1">Alice Johnson</option>
+            <option value="u2">Bob Smith</option>
+            <option value="u3">Carol White</option>
+          </select>
+        </div>
+      </div>
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+
+<div id="mo" class="hidden"><div id="mb"></div></div>
+<div id="tc2"></div>
+
+<script>
+// ── Utilities ──────────────────────────────────────────────────────────────────
+function uid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmt(d){if(!d)return'';const dt=new Date(d),n=new Date();if(dt.toDateString()===n.toDateString())return'Today';const y=new Date(n);y.setDate(n.getDate()-1);if(dt.toDateString()===y.toDateString())return'Yesterday';return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})}
+function overdue(d){if(!d)return false;return new Date(d)<new Date()&&new Date(d).toDateString()!==new Date().toDateString()}
+function initials(n){if(!n)return'?';const p=(n||'').trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():n.slice(0,2).toUpperCase()}
+function pLabel(p){return{low:'Low',medium:'Medium',high:'High',urgent:'Urgent'}[p]||p}
+const COLORS=['#6366f1','#8b5cf6','#ec4899','#f43f5e','#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#10b981','#14b8a6','#06b6d4','#0ea5e9','#3b82f6','#6b7280','#475569'];
+
+// ── Toast ──────────────────────────────────────────────────────────────────────
+function toast(msg,type='info',dur=3500){
+  const t=document.createElement('div');
+  const icons={ok:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',err:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>',info:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>'};
+  t.className=`toast ${type==='success'?'ok':type==='error'?'err':'info'}`;
+  t.innerHTML=`${icons[type==='success'?'ok':type==='error'?'err':'info']}<span>${msg}</span>`;
+  document.getElementById('tc2').appendChild(t);
+  setTimeout(()=>t.remove(),dur);
+}
+
+// ── Database (localStorage) ────────────────────────────────────────────────────
+const DB={
+  _g:k=>JSON.parse(localStorage.getItem('tf_'+k)||'[]'),
+  _s:(k,v)=>localStorage.setItem('tf_'+k,JSON.stringify(v)),
+  workspaces:{
+    list:()=>DB._g('ws'),
+    create(d){const i={id:uid(),...d,created_at:Date.now()};DB._s('ws',[...DB._g('ws'),i]);return i},
+    update(id,d){DB._s('ws',DB._g('ws').map(w=>w.id===id?{...w,...d}:w))},
+    delete(id){DB._s('ws',DB._g('ws').filter(w=>w.id!==id))}
+  },
+  projects:{
+    list:(wsId)=>DB._g('proj').filter(p=>p.workspace_id===wsId),
+    listAll:()=>DB._g('proj'),
+    get:(id)=>DB._g('proj').find(p=>p.id===id),
+    create(d){const i={id:uid(),...d,created_at:Date.now()};DB._s('proj',[...DB._g('proj'),i]);return i},
+    update(id,d){DB._s('proj',DB._g('proj').map(p=>p.id===id?{...p,...d}:p))},
+    delete(id){DB._s('proj',DB._g('proj').filter(p=>p.id!==id))}
+  },
+  stages:{
+    list:(pId)=>DB._g('stages').filter(s=>s.project_id===pId).sort((a,b)=>a.order_index-b.order_index),
+    create(d){const i={id:uid(),...d};DB._s('stages',[...DB._g('stages'),i]);return i},
+    update(id,d){DB._s('stages',DB._g('stages').map(s=>s.id===id?{...s,...d}:s))},
+    delete(id){DB._s('stages',DB._g('stages').filter(s=>s.id!==id))}
+  },
+  lists:{
+    list:(pId)=>DB._g('lists').filter(l=>l.project_id===pId).sort((a,b)=>a.order_index-b.order_index),
+    create(d){const i={id:uid(),...d};DB._s('lists',[...DB._g('lists'),i]);return i}
+  },
+  tasks:{
+    list(q={}){
+      let t=DB._g('tasks');
+      if(q.project_id)t=t.filter(x=>x.project_id===q.project_id);
+      if(q.stage_id)t=t.filter(x=>x.stage_id===q.stage_id);
+      if(q.priority)t=t.filter(x=>x.priority===q.priority);
+      if(q.loc)t=t.filter(x=>x.ghl_location_id===q.loc);
+      if(q.user)t=t.filter(x=>(x.assignees||[]).some(a=>a.id===q.user));
+      return t.sort((a,b)=>a.order_index-b.order_index);
+    },
+    get:(id)=>DB._g('tasks').find(t=>t.id===id),
+    create(d){const max=DB._g('tasks').filter(t=>t.stage_id===d.stage_id).reduce((m,t)=>Math.max(m,t.order_index||0),-1);const i={id:uid(),...d,order_index:max+1,created_at:Date.now(),updated_at:Date.now(),comments:[]};DB._s('tasks',[...DB._g('tasks'),i]);return i},
+    update(id,d){DB._s('tasks',DB._g('tasks').map(t=>t.id===id?{...t,...d,updated_at:Date.now()}:t))},
+    delete(id){DB._s('tasks',DB._g('tasks').filter(t=>t.id!==id))},
+    move(id,stage_id,order_index){DB._s('tasks',DB._g('tasks').map(t=>t.id===id?{...t,stage_id,order_index}:t))},
+    comment(id,content){
+      const tasks=DB._g('tasks');const idx=tasks.findIndex(t=>t.id===id);if(idx<0)return;
+      const c={id:uid(),content,author:'Demo Agency',created_at:Date.now()};
+      tasks[idx].comments=[...(tasks[idx].comments||[]),c];
+      DB._s('tasks',tasks);return c;
+    }
+  }
+};
+
+// ── Seed demo data ─────────────────────────────────────────────────────────────
+function seed(){
+  if(DB._g('seeded')[0])return;
+  const DEFAULT_STAGES=[
+    {name:'To Do',color:'#6b7280',order_index:0},
+    {name:'In Progress',color:'#3b82f6',order_index:1},
+    {name:'Client Review',color:'#f59e0b',order_index:2},
+    {name:'Completed',color:'#10b981',order_index:3},
+    {name:'Closed',color:'#374151',order_index:4},
+  ];
+  // WS 1
+  const ws1=DB.workspaces.create({name:'Client Projects',color:'#6366f1',icon:'🏢'});
+  // Project A
+  const pA=DB.projects.create({name:'Website Redesign',description:'Full redesign of the corporate website',color:'#6366f1',workspace_id:ws1.id});
+  const sA=DEFAULT_STAGES.map(s=>DB.stages.create({...s,project_id:pA.id,is_default:true}));
+  const lA=DB.lists.create({name:'Sprint 1',project_id:pA.id,order_index:0});
+  [
+    {title:'Design homepage mockup',si:0,priority:'high',due:'2025-06-01',tags:['design','ui'],loc:'loc-001',assignees:[{id:'u1',name:'Alice Johnson'}]},
+    {title:'Set up CMS & database',si:1,priority:'medium',due:'2025-05-28',tags:['backend'],loc:'loc-001',assignees:[{id:'u2',name:'Bob Smith'}]},
+    {title:'SEO audit & keyword research',si:0,priority:'low',due:'2025-06-10',tags:['seo'],loc:'loc-002',assignees:[]},
+    {title:'Review colour palette with client',si:2,priority:'medium',due:'2025-05-25',tags:['design'],loc:'loc-001',assignees:[{id:'u1',name:'Alice Johnson'},{id:'u3',name:'Carol White'}]},
+    {title:'Deploy staging environment',si:3,priority:'high',due:'2025-05-22',tags:['devops'],loc:'loc-002',assignees:[{id:'u2',name:'Bob Smith'}]},
+    {title:'Write copy for About page',si:0,priority:'low',tags:['content'],loc:'loc-001',assignees:[]},
+    {title:'Accessibility review (WCAG 2.1)',si:1,priority:'urgent',due:'2025-05-23',tags:['qa'],loc:'loc-003',assignees:[{id:'u3',name:'Carol White'}]},
+  ].forEach((t,i)=>DB.tasks.create({title:t.title,description:'',list_id:lA.id,project_id:pA.id,stage_id:sA[t.si].id,priority:t.priority,due_date:t.due||null,tags:t.tags||[],assignees:t.assignees,ghl_location_id:t.loc,order_index:i}));
+
+  // Project B
+  const pB=DB.projects.create({name:'Social Media Campaign',description:'Q3 Instagram & Facebook push',color:'#8b5cf6',workspace_id:ws1.id});
+  const sB=[
+    {name:'Backlog',color:'#94a3b8',order_index:0},
+    {name:'In Progress',color:'#3b82f6',order_index:1},
+    {name:'Scheduled',color:'#f59e0b',order_index:2},
+    {name:'Published',color:'#10b981',order_index:3},
+  ].map(s=>DB.stages.create({...s,project_id:pB.id,is_default:true}));
+  const lB=DB.lists.create({name:'June Posts',project_id:pB.id,order_index:0});
+  [
+    {title:'Create 10 Instagram post graphics',si:1,priority:'high',loc:'loc-002',assignees:[{id:'u1',name:'Alice Johnson'}]},
+    {title:'Write captions for carousel posts',si:0,priority:'medium',loc:'loc-002',assignees:[]},
+    {title:'Schedule posts for week 1',si:2,priority:'medium',loc:'loc-002',assignees:[{id:'u3',name:'Carol White'}]},
+    {title:'Run Facebook ad for product launch',si:3,priority:'urgent',loc:'loc-003',assignees:[{id:'u2',name:'Bob Smith'}]},
+    {title:'Influencer outreach email',si:0,priority:'low',loc:'loc-001',assignees:[]},
+  ].forEach((t,i)=>DB.tasks.create({title:t.title,description:'',list_id:lB.id,project_id:pB.id,stage_id:sB[t.si].id,priority:t.priority,tags:[],assignees:t.assignees,ghl_location_id:t.loc,order_index:i}));
+
+  // WS 2
+  const ws2=DB.workspaces.create({name:'Internal Operations',color:'#10b981',icon:'⚙️'});
+  const pC=DB.projects.create({name:'Client Onboarding',description:'New client onboarding workflow',color:'#10b981',workspace_id:ws2.id});
+  const sC=[
+    {name:'To Do',color:'#6b7280',order_index:0},
+    {name:'In Progress',color:'#3b82f6',order_index:1},
+    {name:'Done',color:'#10b981',order_index:2},
+  ].map(s=>DB.stages.create({...s,project_id:pC.id,is_default:true}));
+  const lC=DB.lists.create({name:'Default',project_id:pC.id,order_index:0});
+  [
+    {title:'Send welcome email',si:2,priority:'medium',assignees:[{id:'u1',name:'Alice Johnson'}]},
+    {title:'Schedule kick-off call',si:1,priority:'high',assignees:[{id:'u3',name:'Carol White'}]},
+    {title:'Set up client portal access',si:0,priority:'medium',assignees:[]},
+    {title:'Collect brand assets from client',si:1,priority:'low',assignees:[{id:'u2',name:'Bob Smith'}]},
+    {title:'Configure GHL sub-account',si:0,priority:'high',assignees:[]},
+  ].forEach((t,i)=>DB.tasks.create({title:t.title,description:'',list_id:lC.id,project_id:pC.id,stage_id:sC[t.si].id,priority:t.priority,tags:[],assignees:t.assignees||[],ghl_location_id:null,order_index:i}));
+
+  DB._s('seeded',[true]);
+}
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let state={view:'dashboard',workspaceId:null,projectId:null,locFilter:'',userFilter:''};
+function go(view,id=null){
+  state.view=view;
+  if(view==='workspace')state.workspaceId=id;
+  if(view==='project')state.projectId=id;
+  render();
+}
+function applyLocFilter(v){state.locFilter=v;render()}
+function applyUserFilter(v){state.userFilter=v;render()}
+
+// ── Sidebar ────────────────────────────────────────────────────────────────────
+function renderSidebar(){
+  const wss=DB.workspaces.list();
+  const list=document.getElementById('ws-list');
+  list.innerHTML=wss.map(ws=>{
+    const cnt=DB.projects.list(ws.id).length;
+    return`<div class="ws-item${state.workspaceId===ws.id&&state.view==='workspace'?' active':''}" onclick="go('workspace','${ws.id}')">
+      <span class="ws-dot" style="background:${ws.color}"></span>
+      <span class="ws-name">${esc(ws.name)}</span>
+      <span class="ws-cnt">${cnt}</span>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.nav-item[data-view]').forEach(el=>{
+    el.classList.toggle('active',el.dataset.view===state.view&&!['workspace','project'].includes(state.view));
+  });
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────────────
+function openModal(html){
+  document.getElementById('mb').innerHTML=html;
+  document.getElementById('mo').classList.remove('hidden');
+  document.getElementById('mo').onclick=e=>{if(e.target===document.getElementById('mo'))closeModal()};
+  document.addEventListener('keydown',escModal);
+}
+function closeModal(){document.getElementById('mo').classList.add('hidden');document.getElementById('mb').innerHTML='';document.removeEventListener('keydown',escModal)}
+function escModal(e){if(e.key==='Escape')closeModal()}
+
+function colorPicker(name,val){
+  return`<div class="fg"><label>Colour</label><div class="swatches" data-cp="${name}">${COLORS.map(c=>`<div class="swatch${c===val?' sel':''}" style="background:${c}" data-c="${c}"></div>`).join('')}</div><input type="hidden" name="${name}" value="${val||COLORS[0]}"></div>`;
+}
+function bindColorPicker(container){
+  container.querySelectorAll('[data-cp]').forEach(cp=>{
+    cp.addEventListener('click',e=>{
+      const sw=e.target.closest('.swatch');if(!sw)return;
+      cp.querySelectorAll('.swatch').forEach(s=>s.classList.remove('sel'));
+      sw.classList.add('sel');
+      container.querySelector(`input[name="${cp.dataset.cp}"]`).value=sw.dataset.c;
+    });
+  });
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function render(){
+  const view=document.getElementById('view');
+  const title=document.getElementById('page-title');
+  renderSidebar();
+  switch(state.view){
+    case'dashboard': title.textContent='Dashboard'; renderDashboard(view); break;
+    case'workspace': title.textContent=DB.workspaces.list().find(w=>w.id===state.workspaceId)?.name||'Workspace'; renderWorkspace(view); break;
+    case'project':   title.textContent='Project Board'; renderProject(view); break;
+    case'all-tasks': title.textContent='All Tasks'; renderAllTasks(view); break;
+    case'settings':  title.textContent='Settings'; renderSettings(view); break;
+  }
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────────────────
+function renderDashboard(view){
+  const wss=DB.workspaces.list();
+  view.innerHTML=`<div class="ph"><div><h2>Dashboard</h2><p class="tm" style="margin-top:4px">All workspaces at a glance</p></div>
+    <button class="btn btn-p" onclick="openNewWs()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Workspace</button>
+  </div>
+  <div class="dg">${wss.length?wss.map(ws=>{
+    const cnt=DB.projects.list(ws.id).length;
+    const tc=DB.tasks.list().filter(t=>DB.projects.list(ws.id).some(p=>p.id===t.project_id)).length;
+    return`<div class="wc">
+      <div class="wch">
+        <div class="wci" style="background:${ws.color}22"><span style="font-size:20px">${ws.icon}</span></div>
+        <div style="flex:1">
+          <div class="wct">${esc(ws.name)}</div>
+        </div>
+        <div style="display:flex;gap:4px">
+          <button class="icon-btn" onclick="event.stopPropagation();openEditWs('${ws.id}')" title="Edit">${editIcon(13)}</button>
+          <button class="icon-btn" onclick="event.stopPropagation();confirmDel('Delete workspace &ldquo;<b>${esc(ws.name)}</b>&rdquo; and all its data?',()=>deleteWs('${ws.id}'))" title="Delete">${trashIcon(13)}</button>
+        </div>
+      </div>
+      <div class="wc-stats" onclick="go('workspace','${ws.id}')" style="cursor:pointer">
+        <div><div class="stat-val" style="color:${ws.color}">${cnt}</div><div class="stat-lbl">Projects</div></div>
+        <div><div class="stat-val" style="color:${ws.color}">${tc}</div><div class="stat-lbl">Tasks</div></div>
+      </div>
+    </div>`;
+  }).join(''):`<div class="empty" style="grid-column:1/-1">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <h3>No workspaces yet</h3><p>Create one to get started</p>
+    <button class="btn btn-p" onclick="openNewWs()">Create workspace</button>
+  </div>`}</div>`;
+}
+function openNewWs(){
+  openModal(`<div class="modal modal-md"><div class="mh"><h3>New Workspace</h3><span class="mc" onclick="closeModal()">×</span></div>
+    <div class="fg"><label>Name</label><input class="fc" name="name" placeholder="e.g. Client Projects"></div>
+    <div class="fg"><label>Icon (emoji)</label><input class="fc" name="icon" value="🏢" maxlength="2"></div>
+    ${colorPicker('color','#6366f1')}
+    <div class="mf"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="saveNewWs()">Create</button></div>
+  </div>`);
+  bindColorPicker(document.getElementById('mb'));
+}
+function saveNewWs(){
+  const mb=document.getElementById('mb');
+  const name=mb.querySelector('[name=name]').value.trim();
+  if(!name)return toast('Name required','error');
+  const icon=mb.querySelector('[name=icon]').value||'🏢';
+  const color=mb.querySelector('[name=color]').value;
+  DB.workspaces.create({name,icon,color});
+  closeModal();toast('Workspace created','success');render();
+}
+function openEditWs(id){
+  const ws=DB.workspaces.list().find(w=>w.id===id);if(!ws)return;
+  openModal(`<div class="modal modal-md"><div class="mh"><h3>Edit Workspace</h3><span class="mc" onclick="closeModal()">×</span></div>
+    <div class="fg"><label>Name</label><input class="fc" name="name" value="${esc(ws.name)}"></div>
+    <div class="fg"><label>Icon</label><input class="fc" name="icon" value="${esc(ws.icon)}" maxlength="2"></div>
+    ${colorPicker('color',ws.color)}
+    <div class="mf"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="saveEditWs('${id}')">Save</button></div>
+  </div>`);
+  bindColorPicker(document.getElementById('mb'));
+}
+function saveEditWs(id){
+  const mb=document.getElementById('mb');
+  const name=mb.querySelector('[name=name]').value.trim();
+  if(!name)return toast('Name required','error');
+  DB.workspaces.update(id,{name,icon:mb.querySelector('[name=icon]').value||'🏢',color:mb.querySelector('[name=color]').value});
+  closeModal();toast('Workspace updated','success');render();
+}
+function deleteWs(id){
+  DB.projects.list(id).forEach(p=>{
+    DB.tasks.list({project_id:p.id}).forEach(t=>DB.tasks.delete(t.id));
+    DB.stages.list(p.id).forEach(s=>DB.stages.delete(s.id));
+    DB.projects.delete(p.id);
+  });
+  DB.workspaces.delete(id);toast('Deleted','success');render();
+}
+
+// ── Workspace ──────────────────────────────────────────────────────────────────
+function renderWorkspace(view){
+  const ws=DB.workspaces.list().find(w=>w.id===state.workspaceId);
+  const projs=DB.projects.list(state.workspaceId);
+  view.innerHTML=`<div class="ph">
+    <div><div class="bc"><a onclick="go('dashboard')">Home</a><span>›</span><span>${esc(ws?.name||'')}</span></div><h2 style="margin-top:4px">${esc(ws?.name||'')}</h2></div>
+    <button class="btn btn-p" onclick="openNewProj()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Project</button>
+  </div>
+  <div class="pg">${projs.length?projs.map(p=>{
+    const stages=DB.stages.list(p.id);
+    const tc=DB.tasks.list({project_id:p.id}).length;
+    return`<div class="pc" onclick="go('project','${p.id}')">
+      <div style="height:3px;background:${p.color};margin:-16px -16px 16px;border-radius:var(--r) var(--r) 0 0"></div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div class="pc-name">${esc(p.name)}</div>
+        <div style="display:flex;gap:2px;flex-shrink:0">
+          <button class="icon-btn" onclick="event.stopPropagation();openEditProj('${p.id}')" title="Edit">${editIcon(13)}</button>
+          <button class="icon-btn" onclick="event.stopPropagation();confirmDel('Delete project &ldquo;<b>${esc(p.name)}</b>&rdquo; and all its tasks?',()=>deleteProj('${p.id}'))" title="Delete">${trashIcon(13)}</button>
+        </div>
+      </div>
+      <div class="pc-desc">${esc(p.description||'')}</div>
+      <div class="pc-foot">
+        <span class="tm">${tc} task${tc!==1?'s':''}</span>
+        <div style="display:flex;gap:4px">${stages.slice(0,4).map(s=>`<span style="width:8px;height:8px;border-radius:50%;background:${s.color};display:inline-block" title="${esc(s.name)}"></span>`).join('')}</div>
+      </div>
+    </div>`;
+  }).join(''):`<div class="empty" style="grid-column:1/-1">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+    <h3>No projects yet</h3><p>Create a project to start adding tasks</p>
+    <button class="btn btn-p" onclick="openNewProj()">Create project</button>
+  </div>`}</div>`;
+}
+function openNewProj(){
+  openModal(`<div class="modal modal-md"><div class="mh"><h3>New Project</h3><span class="mc" onclick="closeModal()">×</span></div>
+    <div class="fg"><label>Name</label><input class="fc" name="name" placeholder="e.g. Website Redesign"></div>
+    <div class="fg"><label>Description</label><textarea class="fc" name="desc" rows="2" placeholder="What is this project about?"></textarea></div>
+    ${colorPicker('color','#6366f1')}
+    <div class="mf"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="saveNewProj()">Create</button></div>
+  </div>`);
+  bindColorPicker(document.getElementById('mb'));
+}
+function saveNewProj(){
+  const mb=document.getElementById('mb');
+  const name=mb.querySelector('[name=name]').value.trim();
+  if(!name)return toast('Name required','error');
+  const p=DB.projects.create({name,description:mb.querySelector('[name=desc]').value,color:mb.querySelector('[name=color]').value,workspace_id:state.workspaceId});
+  const DEFAULT_STAGES=[{name:'To Do',color:'#6b7280'},{name:'In Progress',color:'#3b82f6'},{name:'Client Review',color:'#f59e0b'},{name:'Completed',color:'#10b981'},{name:'Closed',color:'#374151'}];
+  DEFAULT_STAGES.forEach((s,i)=>DB.stages.create({...s,project_id:p.id,order_index:i,is_default:true}));
+  DB.lists.create({name:'Default',project_id:p.id,order_index:0});
+  closeModal();toast('Project created','success');go('project',p.id);
+}
+function openEditProj(id){
+  const p=DB.projects.get(id);if(!p)return;
+  openModal(`<div class="modal modal-md"><div class="mh"><h3>Edit Project</h3><span class="mc" onclick="closeModal()">×</span></div>
+    <div class="fg"><label>Name</label><input class="fc" name="name" value="${esc(p.name)}"></div>
+    <div class="fg"><label>Description</label><textarea class="fc" name="desc" rows="2">${esc(p.description||'')}</textarea></div>
+    ${colorPicker('color',p.color)}
+    <div class="mf"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-p" onclick="saveEditProj('${id}')">Save</button></div>
+  </div>`);
+  bindColorPicker(document.getElementById('mb'));
+}
+function saveEditProj(id){
+  const mb=document.getElementById('mb');
+  const name=mb.querySelector('[name=name]').value.trim();
+  if(!name)return toast('Name required','error');
+  DB.projects.update(id,{name,description:mb.querySelector('[name=desc]').value,color:mb.querySelector('[name=color]').value});
+  closeModal();toast('Project updated','success');render();
+}
+function deleteProj(id){
+  DB.tasks.list({project_id:id}).forEach(t=>DB.tasks.delete(t.id));
+  DB.stages.list(id).forEach(s=>DB.stages.delete(s.id));
+  DB.projects.delete(id);toast('Deleted','success');render();
+}
+
+// ── Board ──────────────────────────────────────────────────────────────────────
+let curView='board';let dragId=null;
+function renderProject(view){
+  const p=DB.projects.get(state.projectId);if(!p)return;
+  const ws=DB.workspaces.list().find(w=>w.id===p.workspace_id);
+  view.innerHTML=`<div class="ph">
+    <div><div class="bc"><a onclick="go('dashboard')">Home</a><span>›</span><a onclick="go('workspace','${p.workspace_id}')">${esc(ws?.name||'')}</a><span>›</span><span>${esc(p.name)}</span></div><h2 style="margin-top:4px">${esc(p.name)}</h2></div>
+  </div>
+  <div class="bt">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="vtabs">
+        <div class="vtab${curView==='board'?' active':''}" onclick="switchView('board',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="18" rx="1"/><rect x="17" y="3" width="5" height="18" rx="1"/></svg>Board</div>
+        <div class="vtab${curView==='list'?' active':''}" onclick="switchView('list',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>List</div>
+      </div>
+      <button class="btn btn-s btn-sm" onclick="openStagesMgr()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Stages</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <select id="pri-filter" onchange="renderProject(document.getElementById('view'))" style="padding:5px 10px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:var(--surface)">
+        <option value="">All priorities</option>
+        <option value="urgent">Urgent</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+      </select>
+      <button class="btn btn-p btn-sm" onclick="openTaskModal(null,null)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Task</button>
+    </div>
+  </div>
+  <div id="board-slot"></div>`;
+  renderCurrentView();
+}
+function switchView(v,el){
+  curView=v;
+  document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCurrentView();
+}
+function getFilteredTasks(pId){
+  const pri=document.getElementById('pri-filter')?.value||'';
+  return DB.tasks.list({project_id:pId,priority:pri||undefined,loc:state.locFilter||undefined,user:state.userFilter||undefined});
+}
+function renderCurrentView(){
+  const slot=document.getElementById('board-slot');if(!slot)return;
+  const tasks=getFilteredTasks(state.projectId);
+  if(curView==='board')renderKanban(slot,tasks);else renderListView(slot,tasks);
+}
+function renderKanban(slot,tasks){
+  const stages=DB.stages.list(state.projectId);
+  const byStage={};stages.forEach(s=>{byStage[s.id]=[]});
+  tasks.forEach(t=>{if(byStage[t.stage_id])byStage[t.stage_id].push(t);});
+  slot.innerHTML='';
+  const board=document.createElement('div');board.className='board';
+  stages.forEach(s=>{
+    const col=document.createElement('div');col.className='col';col.dataset.sid=s.id;
+    const st=byStage[s.id]||[];
+    col.innerHTML=`<div class="col-head"><div class="col-title"><span class="sdot" style="background:${s.color}"></span>${esc(s.name)}</div><span class="col-cnt">${st.length}</span><div style="display:flex;gap:2px"><button class="icon-btn" onclick="openTaskModal(null,'${s.id}')" title="Add task"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></div></div>
+    <div class="col-body" data-sid="${s.id}"></div>
+    <button class="add-t" onclick="openTaskModal(null,'${s.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add task</button>`;
+    const body=col.querySelector('.col-body');
+    st.forEach(t=>body.appendChild(buildCard(t)));
+    setupDrop(body,s.id);
+    board.appendChild(col);
+  });
+  const addCol=document.createElement('button');addCol.className='add-col';
+  addCol.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add stage`;
+  addCol.onclick=()=>openAddStage();
+  board.appendChild(addCol);
+  slot.appendChild(board);
+}
+function buildCard(t){
+  const card=document.createElement('div');card.className='tc';card.draggable=true;card.dataset.tid=t.id;
+  const od=overdue(t.due_date);
+  card.innerHTML=`<div class="tc-title">${esc(t.title)}</div>
+  <div class="tc-meta">
+    <span class="pb p${t.priority[0]}">${pLabel(t.priority)}</span>
+    ${t.due_date?`<span class="db${od?' od':''}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${fmt(t.due_date)}</span>`:''}
+    ${(t.tags||[]).slice(0,2).map(tg=>`<span class="tag">${esc(tg)}</span>`).join('')}
+    <div class="avs">${(t.assignees||[]).slice(0,3).map(a=>`<div class="av" title="${esc(a.name)}">${initials(a.name)}</div>`).join('')}</div>
+  </div>
+  ${t.ghl_location_id?`<div class="tc-loc"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span>${esc(t.ghl_location_id)}</div>`:''}`;
+  card.addEventListener('click',()=>openTaskModal(t.id,null));
+  card.addEventListener('dragstart',e=>{dragId=t.id;card.classList.add('dragging');e.dataTransfer.effectAllowed='move'});
+  card.addEventListener('dragend',()=>{card.classList.remove('dragging');dragId=null});
+  return card;
+}
+function setupDrop(body,sid){
+  body.addEventListener('dragover',e=>{e.preventDefault();body.closest('.col').classList.add('over')});
+  body.addEventListener('dragleave',e=>{if(!body.contains(e.relatedTarget))body.closest('.col').classList.remove('over')});
+  body.addEventListener('drop',e=>{
+    e.preventDefault();body.closest('.col').classList.remove('over');
+    if(!dragId)return;
+    const t=DB.tasks.get(dragId);if(!t||t.stage_id===sid)return;
+    DB.tasks.move(dragId,sid,9999);
+    renderCurrentView();
+  });
+}
+function renderListView(slot,tasks){
+  const stages=Object.fromEntries(DB.stages.list(state.projectId).map(s=>[s.id,s]));
+  slot.innerHTML=`<div class="card" style="overflow:auto"><table class="ttable">
+    <thead><tr><th style="width:38%">Task</th><th>Stage</th><th>Priority</th><th>Assignees</th><th>Due</th><th>Sub-account</th></tr></thead>
+    <tbody>${tasks.length?tasks.map(t=>{
+      const s=stages[t.stage_id]||{};const od=overdue(t.due_date);
+      return`<tr>
+        <td><span class="tc-link" onclick="openTaskModal('${t.id}',null)">${esc(t.title)}</span></td>
+        <td><span class="sp2" style="background:${s.color}22;color:${s.color}"><span style="width:7px;height:7px;border-radius:50%;background:${s.color};display:inline-block"></span>${esc(s.name||'—')}</span></td>
+        <td><span class="pb p${t.priority[0]}">${pLabel(t.priority)}</span></td>
+        <td><div class="avs" style="margin-left:0">${(t.assignees||[]).slice(0,3).map(a=>`<div class="av" title="${esc(a.name)}">${initials(a.name)}</div>`).join('')}${!(t.assignees||[]).length?'<span class="tm">—</span>':''}</div></td>
+        <td><span class="${od?'db od':'db'}">${fmt(t.due_date)||'—'}</span></td>
+        <td><span class="tm">${t.ghl_location_id?'📍 '+t.ghl_location_id:'—'}</span></td>
+      </tr>`;
+    }).join(''):`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--tm)">No tasks match the current filters</td></tr>`}</tbody>
+  </table></div>`;
+}
+
+// ── Task Modal ─────────────────────────────────────────────────────────────────
+const GHL_USERS=[{id:'u1',name:'Alice Johnson'},{id:'u2',name:'Bob Smith'},{id:'u3',name:'Carol White'}];
+function openTaskModal(taskId,defaultStageId){
+  const isNew=!taskId;
+  const t=taskId?DB.tasks.get(taskId):null;
+  const stages=DB.stages.list(state.projectId);
+  const sid=defaultStageId||(t?.stage_id)||stages[0]?.id;
+  const comments=t?.comments||[];
+  openModal(`<div class="modal modal-lg">
+    <div class="mh"><h3>${isNew?'New Task':'Edit Task'}</h3><span class="mc" onclick="closeModal()">×</span></div>
+    <input class="fc" id="t-title" placeholder="Task title…" value="${esc(t?.title||'')}" style="font-size:18px;font-weight:600;margin-bottom:16px">
+    <div class="td-row">
+      <div class="td-field"><label>Stage</label><select class="fs" id="t-stage">${stages.map(s=>`<option value="${s.id}"${sid===s.id?' selected':''}>${esc(s.name)}</option>`).join('')}</select></div>
+      <div class="td-field"><label>Priority</label><select class="fs" id="t-pri">${['urgent','high','medium','low'].map(p=>`<option value="${p}"${(t?.priority||'medium')===p?' selected':''}>${pLabel(p)}</option>`).join('')}</select></div>
+      <div class="td-field"><label>Due Date</label><input class="fi" type="date" id="t-due" value="${t?.due_date||''}"></div>
+      <div class="td-field"><label>Assign to</label><select class="fs" id="t-assignee"><option value="">Unassigned</option>${GHL_USERS.map(u=>`<option value="${u.id}"${(t?.assignees||[]).some(a=>a.id===u.id)?' selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
+    </div>
+    <div class="fg"><label>Description</label><textarea class="fc" id="t-desc" rows="3" placeholder="Add details…">${esc(t?.description||'')}</textarea></div>
+    <div class="fg"><label>Tags (comma-separated)</label><input class="fc" id="t-tags" placeholder="design, frontend, urgent" value="${esc((t?.tags||[]).join(', '))}"></div>
+    <div class="fg"><label>Sub-account (GHL Location)</label><select class="fs" id="t-loc">
+      <option value="">None</option>
+      <option value="loc-001"${(t?.ghl_location_id||'')==='loc-001'?' selected':''}>Client A (loc-001)</option>
+      <option value="loc-002"${(t?.ghl_location_id||'')==='loc-002'?' selected':''}>Client B (loc-002)</option>
+      <option value="loc-003"${(t?.ghl_location_id||'')==='loc-003'?' selected':''}>Client C (loc-003)</option>
+    </select></div>
+    ${!isNew?`<div class="cs"><h4>Comments (${comments.length})</h4>
+      <div id="comment-list">${comments.map(c=>`<div class="ci"><div class="cav">${initials(c.author)}</div><div class="cb"><div class="ca">${esc(c.author)}</div><div class="ct">${esc(c.content)}</div><div class="cts">${new Date(c.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div></div>`).join('')}</div>
+      <div class="cir"><input class="cin" id="c-input" placeholder="Write a comment…"><button class="btn btn-p btn-sm" onclick="addComment('${taskId}')">Post</button></div>
+    </div>`:''}
+    <div class="mf">
+      ${!isNew?`<button class="btn btn-d btn-sm" onclick="closeModal();confirmDel('Delete this task?',()=>{DB.tasks.delete('${taskId}');toast('Task deleted','success');renderCurrentView()})">Delete</button>`:''}
+      <button class="btn btn-s" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-p" onclick="saveTask('${taskId||''}','${isNew}')">
+        ${isNew?'Create Task':'Save Changes'}
+      </button>
+    </div>
+  </div>`);
+  document.getElementById('t-title').focus();
+}
+function saveTask(taskId,isNew){
+  const title=document.getElementById('t-title').value.trim();
+  if(!title)return toast('Title required','error');
+  const sid=document.getElementById('t-stage').value;
+  const pri=document.getElementById('t-pri').value;
+  const due=document.getElementById('t-due').value||null;
+  const desc=document.getElementById('t-desc').value;
+  const tagsRaw=document.getElementById('t-tags').value;
+  const tags=tagsRaw?tagsRaw.split(',').map(t=>t.trim()).filter(Boolean):[];
+  const aId=document.getElementById('t-assignee').value;
+  const assignees=aId?[{id:aId,name:GHL_USERS.find(u=>u.id===aId)?.name||''}]:[];
+  const loc=document.getElementById('t-loc').value||null;
+  const payload={title,stage_id:sid,priority:pri,due_date:due,description:desc,tags,assignees,ghl_location_id:loc};
+  if(isNew==='true'){
+    DB.tasks.create({...payload,project_id:state.projectId,list_id:DB.lists.list(state.projectId)[0]?.id});
+    toast('Task created','success');
+  }else{
+    DB.tasks.update(taskId,payload);
+    toast('Task updated','success');
+  }
+  closeModal();renderCurrentView();
+}
+function addComment(taskId){
+  const input=document.getElementById('c-input');
+  const content=input.value.trim();if(!content)return;
+  const c=DB.tasks.comment(taskId,content);input.value='';
+  const list=document.getElementById('comment-list');
+  const div=document.createElement('div');div.className='ci';
+  div.innerHTML=`<div class="cav">${initials(c.author)}</div><div class="cb"><div class="ca">${esc(c.author)}</div><div class="ct">${esc(c.content)}</div><div class="cts">Just now</div></div>`;
+  list.appendChild(div);
+}
+
+// ── Stages Manager ─────────────────────────────────────────────────────────────
+function openStagesMgr(){
+  const stages=DB.stages.list(state.projectId);
+  openModal(`<div class="modal modal-md"><div class="mh"><h3>Manage Stages</h3><span class="mc" onclick="closeModal()">×</span></div>
+    <p class="tm" style="margin-bottom:16px">Add, rename, or remove stages. Tasks move to the next available stage when a stage is deleted.</p>
+    <div class="sl" id="stage-list">
+      ${stages.map(s=>`<div class="sli">
+        <span class="scd" style="background:${s.color}"></span>
+        <span class="slname">${esc(s.name)}</span>
+        ${s.is_default?'<span class="s-badge">default</span>':''}
+        <div class="sla">
+          <button class="icon-btn" onclick="openEditStage('${s.id}')" title="Edit">${editIcon(13)}</button>
+          ${stages.length>1?`<button class="icon-btn" onclick="deleteStage('${s.id}')" title="Delete">${trashIcon(13)}</button>`:''}
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="mf" style="justify-content:space-between">
+      <button class="btn btn-s" onclick="openAddStage(true)">+ Add stage</button>
+      <button class="btn btn-p" onclick="closeModal();renderCurrentView()">Done</button>
+    </div>
+  </div>`);
+}
+function openAddStage(fromMgr=false){
+  openModal(`<div class="modal modal-sm"><div class="mh"><h3>Add Stage</h3><span class="mc" onclick="${fromMgr?'openStagesMgr':'closeModal'}()">×</span></div>
+    <div class="fg"><label>Name</label><input class="fc" name="sname" placeholder="e.g. QA Review"></div>
+    ${colorPicker('scolor','#6b7280')}
+    <div class="mf"><button class="btn btn-s" onclick="${fromMgr?'openStagesMgr':'closeModal'}()">Cancel</button><button class="btn btn-p" onclick="saveAddStage(${fromMgr})">Add</button></div>
+  </div>`);
+  bindColorPicker(document.getElementById('mb'));
+}
+function saveAddStage(fromMgr){
+  const mb=document.getElementById('mb');
+  const name=mb.querySelector('[name=sname]').value.trim();
+  if(!name)return toast('Name required','error');
+  const stages=DB.stages.list(state.projectId);
+  DB.stages.create({name,color:mb.querySelector('[name=scolor]').value,project_id:state.projectId,order_index:stages.length,is_default:false});
+  toast('Stage added','success');
+  fromMgr?openStagesMgr():closeModal();
+  renderCurrentView();
+}
+function openEditStage(id){
+  const s=DB.stages.list(state.projectId).find(x=>x.id===id);if(!s)return;
+  openModal(`<div class="modal modal-sm"><div class="mh"><h3>Edit Stage</h3><span class="mc" onclick="openStagesMgr()">×</span></div>
+    <div class="fg"><label>Name</label><input class="fc" name="sname" value="${esc(s.name)}"></div>
+    ${colorPicker('scolor',s.color)}
+    <div class="mf"><button class="btn btn-s" onclick="openStagesMgr()">Cancel</button><button class="btn btn-p" onclick="saveEditStage('${id}')">Save</button></div>
+  </div>`);
+  bindColorPicker(document.getElementById('mb'));
+}
+function saveEditStage(id){
+  const mb=document.getElementById('mb');
+  const name=mb.querySelector('[name=sname]').value.trim();
+  if(!name)return toast('Name required','error');
+  DB.stages.update(id,{name,color:mb.querySelector('[name=scolor]').value});
+  toast('Stage updated','success');openStagesMgr();renderCurrentView();
+}
+function deleteStage(id){
+  const stages=DB.stages.list(state.projectId);
+  const fallback=stages.find(s=>s.id!==id);
+  if(fallback)DB.tasks.list({project_id:state.projectId}).filter(t=>t.stage_id===id).forEach(t=>DB.tasks.update(t.id,{stage_id:fallback.id}));
+  DB.stages.delete(id);toast('Stage deleted','success');openStagesMgr();renderCurrentView();
+}
+
+// ── All Tasks ──────────────────────────────────────────────────────────────────
+function renderAllTasks(view){
+  view.innerHTML=`<div class="ph">
+    <div><h2>All Tasks</h2><p class="tm" style="margin-top:4px">Across all workspaces & sub-accounts</p></div>
+    <select id="at-pri" onchange="renderAllTasks(document.getElementById('view'))" style="padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:13px">
+      <option value="">All priorities</option>
+      <option value="urgent">Urgent</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+    </select>
+  </div>
+  <div id="at-body"></div>`;
+  const pri=document.getElementById('at-pri')?.value||'';
+  const tasks=DB.tasks.list({priority:pri||undefined,loc:state.locFilter||undefined,user:state.userFilter||undefined});
+  const projMap=Object.fromEntries(DB.projects.listAll().map(p=>[p.id,p]));
+  const body=view.querySelector('#at-body');
+  if(!tasks.length){body.innerHTML=`<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><h3>No tasks</h3><p>Create tasks inside a project board</p></div>`;return}
+  body.innerHTML=`<div class="card" style="overflow:auto"><table class="ttable">
+    <thead><tr><th style="width:32%">Task</th><th>Project</th><th>Priority</th><th>Assignees</th><th>Due</th><th>Sub-account</th></tr></thead>
+    <tbody>${tasks.map(t=>{
+      const od=overdue(t.due_date);const proj=projMap[t.project_id];
+      return`<tr>
+        <td><span class="tc-link" onclick="go('project','${t.project_id}');setTimeout(()=>openTaskModal('${t.id}',null),200)">${esc(t.title)}</span></td>
+        <td><span class="tm">${esc(proj?.name||'—')}</span></td>
+        <td><span class="pb p${t.priority[0]}">${pLabel(t.priority)}</span></td>
+        <td><div class="avs" style="margin-left:0">${(t.assignees||[]).slice(0,3).map(a=>`<div class="av" title="${esc(a.name)}">${initials(a.name)}</div>`).join('')}${!(t.assignees||[]).length?'<span class="tm">—</span>':''}</div></td>
+        <td><span class="${od?'db od':'db'}">${fmt(t.due_date)||'—'}</span></td>
+        <td><span class="tm">${t.ghl_location_id?'📍 '+t.ghl_location_id:'—'}</span></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+// ── Settings ───────────────────────────────────────────────────────────────────
+function renderSettings(view){
+  view.innerHTML=`<div class="ph"><h2>Settings</h2></div>
+  <div class="sg">
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <div class="sni active" onclick="showSection('ghl',this)">GHL Integration</div>
+      <div class="sni" onclick="showSection('account',this)">Account</div>
+      <div class="sni" onclick="showSection('locations',this)">Sub-accounts</div>
+    </div>
+    <div id="ss-content"></div>
+  </div>`;
+  showSection('ghl',view.querySelector('.sni.active'));
+}
+function showSection(sec,el){
+  document.querySelectorAll('.sni').forEach(i=>i.classList.remove('active'));el.classList.add('active');
+  const c=document.getElementById('ss-content');
+  if(sec==='ghl')c.innerHTML=`<div class="ss">
+    <div class="ss-title">Go High Level Integration</div>
+    <div class="ss-desc">Connect your GHL agency account to sync sub-accounts and assign tasks to GHL users.</div>
+    <div class="conn"><div class="dot on"></div><div><div style="font-size:13px;font-weight:500">✓ Demo mode active</div><div class="tm" style="margin-top:2px">demo@agency.com · Agency account</div></div><button class="btn btn-s btn-sm" style="margin-left:auto" onclick="toast('Connect your real GHL account by deploying the app with your OAuth credentials','info')">Connect real GHL →</button></div>
+    <hr>
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px">OAuth Setup (for production)</div>
+    <ol style="padding-left:20px;font-size:13px;color:var(--ts);line-height:2.2">
+      <li>Create a private app at <b>GHL Marketplace → Apps</b></li>
+      <li>Set Redirect URI to <code style="background:var(--bg);padding:2px 6px;border-radius:4px">https://yourdomain.com/auth/callback</code></li>
+      <li>Enable scopes: <code style="background:var(--bg);padding:2px 6px;border-radius:4px">businesses.readonly locations.readonly users.readonly</code></li>
+      <li>Copy Client ID & Secret into your <code>.env</code> file</li>
+      <li>Run <code style="background:var(--bg);padding:2px 6px;border-radius:4px">npm start</code> and click Connect</li>
+    </ol>
+  </div>`;
+  else if(sec==='account')c.innerHTML=`<div class="ss">
+    <div class="ss-title">Account Details</div>
+    <div class="ss-desc">Your current session information.</div>
+    <table style="font-size:13px;border-collapse:collapse;width:100%">
+      <tr><td style="padding:8px 0;color:var(--ts);width:140px">Name</td><td style="font-weight:500">Demo Agency</td></tr>
+      <tr><td style="padding:8px 0;color:var(--ts)">Email</td><td>demo@agency.com</td></tr>
+      <tr><td style="padding:8px 0;color:var(--ts)">Account type</td><td><span class="acc-type">Agency</span></td></tr>
+      <tr><td style="padding:8px 0;color:var(--ts)">GHL Company ID</td><td class="tm">demo-company-123</td></tr>
+    </table>
+    <div style="margin-top:20px"><button class="btn btn-d btn-sm" onclick="if(confirm('Reset all demo data?')){localStorage.clear();location.reload()}">Reset demo data</button></div>
+  </div>`;
+  else c.innerHTML=`<div class="ss">
+    <div class="ss-title">Sub-accounts (3)</div>
+    <div class="ss-desc">GHL locations linked to your agency. In production these are fetched live from GHL.</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px">
+      <thead><tr><th style="text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--tm);font-size:11px;text-transform:uppercase">Name</th><th style="text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--tm);font-size:11px;text-transform:uppercase">Location ID</th><th style="text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--tm);font-size:11px;text-transform:uppercase">Tasks</th></tr></thead>
+      <tbody>
+        ${[['Client A','loc-001'],['Client B','loc-002'],['Client C','loc-003']].map(([n,id])=>`<tr><td style="padding:10px 12px;border-bottom:1px solid var(--border)">${n}</td><td style="padding:10px 12px;border-bottom:1px solid var(--border);color:var(--tm)">${id}</td><td style="padding:10px 12px;border-bottom:1px solid var(--border)">${DB.tasks.list({loc:id}).length}</td></tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ── Confirm modal ──────────────────────────────────────────────────────────────
+function confirmDel(msg,cb){
+  openModal(`<div class="modal modal-sm"><div class="mh"><h3>Confirm</h3><span class="mc" onclick="closeModal()">×</span></div>
+    <p style="color:var(--ts);font-size:14px;line-height:1.6">${msg}</p>
+    <div class="mf"><button class="btn btn-s" onclick="closeModal()">Cancel</button><button class="btn btn-d" onclick="closeModal();(${cb.toString()})()">Delete</button></div>
+  </div>`);
+}
+
+// ── SVG icons ──────────────────────────────────────────────────────────────────
+function editIcon(s){return`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`}
+function trashIcon(s){return`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>`}
+
+// ── Boot ───────────────────────────────────────────────────────────────────────
+document.getElementById('sb-toggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('collapsed'));
+document.getElementById('new-ws-btn').addEventListener('click',openNewWs);
+document.querySelectorAll('.nav-item[data-view]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.view)));
+
+seed();
+document.getElementById('loading').style.display='none';
+document.getElementById('app').classList.remove('hidden');
+render();
+</script>
+</body>
+</html>
