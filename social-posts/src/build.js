@@ -12,7 +12,9 @@ const FORMATS = [
   { key: 'square', dir: '1080x1080_square-facebook-linkedin-x', w: 1080, h: 1080 },
   { key: 'story', dir: '1080x1920_stories-reels-cover', w: 1080, h: 1920 },
 ];
-const OUT = path.join(__dirname, '..', 'output');
+const OUT = process.env.OUT_DIR || path.join(__dirname, '..', 'output');
+const DSF = Number(process.env.DSF || 1);
+const ONLY_FORMAT = process.env.FORMAT;
 const pad = (n) => String(n).padStart(2, '0');
 
 // Profile grid plan, read from the top-left of the finished 30-post grid
@@ -73,10 +75,10 @@ function page(p, fmt) {
   const only = process.argv.slice(2).map(Number);
   const list = only.length ? posts.filter((p) => only.includes(p.n)) : posts;
   const browser = await chromium.launch();
-  const ctx = await browser.newContext({ deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({ deviceScaleFactor: DSF });
   const pg = await ctx.newPage();
   const report = [];
-  for (const fmt of FORMATS) {
+  for (const fmt of FORMATS.filter((f) => !ONLY_FORMAT || f.key === ONLY_FORMAT)) {
     fs.mkdirSync(path.join(OUT, fmt.dir), { recursive: true });
     await pg.setViewportSize({ width: fmt.w, height: fmt.h });
     for (const p of list) {

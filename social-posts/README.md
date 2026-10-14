@@ -11,7 +11,7 @@ Type: Sora (headings), Inter (body). Cards use a 15px radius and purple-tinted s
 | `output/1080x1080_square-facebook-linkedin-x` | 1080 x 1080 (1:1) | Facebook, LinkedIn, X, Threads, Google Business Profile |
 | `output/1080x1920_stories-reels-cover` | 1080 x 1920 (9:16) | Instagram and Facebook Stories, Reels covers, TikTok. Top 210px and bottom 300px kept clear for app UI |
 
-`output/instagram-grid-preview.png` shows the profile grid (newest first, 3:4 crop as Instagram displays it).
+`output/instagram-grid-preview.png` shows the profile grid (newest first, 3:4 crop as Instagram displays it). `output/instagram-grid-preview-4k.png` and `.jpg` are the same view at 3840px wide (4K). To rebuild the 4K version, see the commands below.
 
 ## Layout
 
@@ -37,6 +37,7 @@ cd src
 node build.js          # all posts, all sizes
 node build.js 4 17     # selected posts
 node grid.js           # grid preview
+OUT_DIR=/tmp/hi DSF=1.2 FORMAT=portrait node build.js && SRC_DIR=/tmp/hi/1080x1350_instagram-facebook-linkedin-feed DSF=3.5556 OUT_FILE=../output/instagram-grid-preview-4k.png node grid.js   # 4K grid
 ```
 
 ## Image assets

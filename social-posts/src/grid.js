@@ -3,7 +3,9 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
 const posts = require('./posts');
-const dir = path.join(__dirname, '..', 'output', '1080x1350_instagram-facebook-linkedin-feed');
+const dir = process.env.SRC_DIR || path.join(__dirname, '..', 'output', '1080x1350_instagram-facebook-linkedin-feed');
+const DSF = Number(process.env.DSF || 1);
+const OUTFILE = process.env.OUT_FILE || path.join(__dirname, '..', 'output', 'instagram-grid-preview.png');
 const pad = (n) => String(n).padStart(2, '0');
 const tiles = [...posts].reverse().map((p) => `<img src="file://${path.join(dir, `post-${pad(p.n)}-${p.slug}.png`)}">`).join('');
 const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="styles.css"><style>
@@ -24,10 +26,10 @@ p{font-size:20px;line-height:1.45;margin:0;color:#222} .g{display:grid;grid-temp
   const tmp = path.join(__dirname, '.tmp-grid.html');
   fs.writeFileSync(tmp, html);
   const b = await chromium.launch();
-  const pg = await b.newPage({ viewport: { width: 1080, height: 800 } });
+  const pg = await b.newPage({ viewport: { width: 1080, height: 800 }, deviceScaleFactor: DSF });
   await pg.goto('file://' + tmp);
   await pg.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map((i) => i.decode())); });
-  await pg.screenshot({ path: path.join(__dirname, '..', 'output', 'instagram-grid-preview.png'), fullPage: true });
+  await pg.screenshot({ path: OUTFILE, fullPage: true, ...(OUTFILE.endsWith('.jpg') ? { type: 'jpeg', quality: 92 } : {}) });
   await b.close();
   fs.unlinkSync(tmp);
 })();
