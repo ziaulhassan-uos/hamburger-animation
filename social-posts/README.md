@@ -13,18 +13,17 @@ Type: Sora (headings), Inter (body). Cards use a 15px radius and purple-tinted s
 
 `output/instagram-grid-preview.png` shows the profile grid (newest first, 3:4 crop as Instagram displays it).
 
-## Layout grid
+## Layout
 
-- 1080px canvas, 80px outer margins, 12 columns with 24px gutters.
-- Fixed zones: header (logo + category tag), hook, gold rule, body, hero visual, footer (CTA pill + handle).
-- Feed rhythm: odd posts are Deep Purple, even posts alternate White and Lavender. Posted in order 1 to 30, the 3 column profile grid forms a checkerboard.
-- Highlight words: gold text on purple; gold marker under purple text on light backgrounds.
+- 1080px canvas, 80px side margins. All copy is centered.
+- Stack, top to bottom: logo icon, category tag, hook, rule, body, hero visual, CTA button, handle.
+- Backgrounds are flat brand colors with no grid or numbering: Deep Purple #412B67 (odd posts), White and Lavender (even posts), and Gold #FFB317 for the highlighted posts 4, 10, 16, 22 and 28.
+- Highlighted words: gold text on purple, a gold marker under purple text on white and lavender, and purple text on gold.
 
 ## Editing and rebuilding
 
 - Copy: `src/posts.js` (wrap the highlight phrase in `*asterisks*`).
 - Visuals: `src/visuals.js`. Styles and brand tokens: `src/styles.css`.
-- The logo is a placeholder wordmark (`.logo` in `src/build.js` and `src/styles.css`). Swap in the official Inverto Digital logo file there.
 - Handle `@invertodigital` is set in `src/build.js`.
 
 ```
@@ -36,9 +35,9 @@ node grid.js           # grid preview
 
 ## Image assets
 
-- `src/assets/3d/`: 72 transparent 3D PNG objects from Microsoft Fluent Emoji 3D (MIT license, via the `@lobehub/fluent-emoji-3d` package). Source size is 256px, so they are kept at about 250px or smaller on the canvas to stay sharp.
-- `src/assets/brands/`: platform logos (Instagram, Facebook, WordPress, Shopify, Google, n8n, Gmail, Sheets and others) from Simple Icons (CC0), shown as glossy app tiles. Logos stay the property of their owners and are used only to name the platforms.
-- Shadows: every 3D object gets two drop shadows plus a blurred contact shadow underneath. On purple posts the shadows are tinted dark purple, never black.
-- In `src/visuals.js`: `obj(name, size, style)` places a 3D object, `tile(name, size)` puts one inside a UI tile, and `brand(name, size)` adds a logo tile.
+- No emoji artwork. The 3D icons are brand-colored badges (gold, purple or white faces with a bevel, a gloss highlight and a contact shadow) drawn from the stroke icon set in `src/icons.js`. Their colors follow each post's theme.
+- `src/assets/brands/`: platform logos from Simple Icons (CC0), shown as app tiles. The logos belong to their owners and are used only to name the platforms.
+- Logo: put the official icon files in `src/assets/logo/` (see the README in that folder).
+- In `src/visuals.js`: `obj(name, size, style)` places a 3D badge, `tile(name, size)` puts a small one inside a UI mockup, and `brand(name, size)` adds a logo tile.
 
 Requires Node with Playwright (Chromium). Fonts are bundled in `src/fonts` (SIL Open Font License).

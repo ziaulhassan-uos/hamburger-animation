@@ -1,20 +1,28 @@
 // Hero visuals for each post. Each returns { w, h, html } at its natural size;
 // the page script scales it to fit the available area for every format.
-const { ic, cursor } = require('./icons');
+const { ic, cursor, raw } = require('./icons');
 
 const floor = '<div class="shadow-floor"></div>';
 const av = (n, txt, size = 56) => `<div class="avatar av${n}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px">${txt}</div>`;
 const statusBar = (dark) => `<div class="status" style="color:${dark ? '#fff' : '#111'}"><span>9:41</span><span style="display:flex;gap:6px;align-items:center"><svg width="22" height="14" viewBox="0 0 22 14"><rect x="0" y="9" width="4" height="5" rx="1" fill="currentColor"/><rect x="6" y="6" width="4" height="8" rx="1" fill="currentColor"/><rect x="12" y="3" width="4" height="11" rx="1" fill="currentColor"/><rect x="18" y="0" width="4" height="14" rx="1" fill="currentColor"/></svg><svg width="30" height="14" viewBox="0 0 30 14"><rect x=".5" y=".5" width="25" height="13" rx="4" fill="none" stroke="currentColor" opacity=".5"/><rect x="3" y="3" width="19" height="8" rx="2" fill="currentColor"/><rect x="27" y="4.5" width="2" height="5" rx="1" fill="currentColor" opacity=".5"/></svg></span></div>`;
 const phone = (inner, { dark = false, style = '' } = {}) => `<div class="phone" style="${style}"><div class="screen" style="background:${dark ? '#140C22' : '#fff'}"><div class="island"></div>${statusBar(dark)}${inner}<div class="gloss"></div></div></div>`;
 const browser = (url, inner, style = '') => `<div class="browser" style="${style}"><div class="bar"><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span><div class="url">${ic('shield')} ${url}</div></div>${inner}</div>`;
-const notif = (icon, title, sub, style) => `<div class="float notif" style="${style}">${icon.startsWith('3d:') ? `<div class="tile3d" style="width:58px;height:58px"><img src="assets/3d/${icon.slice(3)}.png"></div>` : `<div class="ico">${ic(icon)}</div>`}<div><b>${title}</b><span>${sub}</span></div></div>`;
+const notif = (icon, title, sub, style) => `<div class="float notif" style="${style}">${icon.startsWith('3d:') ? tile(icon.slice(3), 58) : `<div class="ico">${ic(icon)}</div>`}<div><b>${title}</b><span>${sub}</span></div></div>`;
 const key = (cls, label, w, h, fs, style = '') => `<div class="key ${cls}" style="width:${w}px;height:${h}px;${style}"><div class="face" style="font-size:${fs}px">${label}</div></div>`;
 
 
-// 3D PNG object with layered drop shadow and a soft floor shadow.
-const obj = (name, size, style = '', cls = '') => `<div class="obj ${cls}" style="width:${Math.min(250, Math.round(size * 1.22))}px;${style}"><img src="assets/3d/${name}.png"><div class="floor"></div></div>`;
-// Rounded tile holding a small 3D PNG (replaces flat icons in UI mockups).
-const tile = (name, size = 56, cls = '') => `<div class="tile3d ${cls}" style="width:${size}px;height:${size}px;border-radius:${Math.round(size * 0.28)}px"><img src="assets/3d/${name}.png"></div>`;
+// Brand-colored 3D badge icons. Variant follows the post theme and alternates.
+const MAP = {"broom": "wand", "dividers": "layers", "bolt": "zap", "gear": "gear", "phone": "phone", "mouse": "target", "laptop": "layout", "ice": "zap", "stopwatch": "clock", "speech": "msg", "robot": "spark", "moon": "moon", "sparkles": "spark", "label": "tag", "handshake": "users", "bell": "bell", "alarm": "clock", "puzzle": "grid", "calendar": "cal", "barchart": "chart", "memo": "form", "email": "mail", "trend": "up", "check": "check", "link": "link", "tools": "gear", "globe": "globe", "tearcal": "cal", "trophy": "trophy", "gem": "gem", "trash": "trash", "hourglass": "hourglass", "hook": "hook", "heart": "heartFill", "wave": "msg", "spiralcal": "cal", "recycle": "recycle", "bulb": "bulb", "clapper": "video", "picture": "image", "mobile": "mobile", "writing": "type", "idcard": "user", "inbox": "inbox", "envelope": "send", "question": "question", "ballot": "chart", "raisehand": "users", "search": "search", "film": "video", "headphones": "headphones", "palette": "palette", "brush": "brush", "ruler": "layout", "rocket": "rocket", "bags": "bag", "cart": "cart", "card": "dollar", "searchr": "search", "target": "target", "moneybag": "dollar", "dollar": "dollar", "plug": "link", "cabinet": "db", "technologist": "user", "briefcase": "briefcase", "package": "package"};
+const ICO = (n) => `<svg viewBox="0 0 24 24">${raw(MAP[n] || n)}</svg>`;
+const VARIANTS = { dark: ['gold', 'white'], white: ['purple', 'gold'], lav: ['purple', 'gold'], gold: ['purple', 'white'] };
+let THEME = 'dark', SEQ = 0;
+const obj = (name, size, style = '', cls = '') => {
+  const v = VARIANTS[THEME][SEQ++ % 2];
+  const w = Math.round(size * 0.92);
+  return `<div class="obj ${cls}" style="width:${w}px;${style}"><div class="badge v-${v}"><div class="face">${ICO(name)}</div><div class="floor"></div></div></div>`;
+};
+// Small 3D tile with a stroke icon, used inside UI mockups.
+const tile = (name, size = 56, cls = '') => `<div class="tile3d ${cls}" style="width:${size}px;height:${size}px;border-radius:${Math.round(size * 0.28)}px">${ICO(name)}</div>`;
 // Glossy app-style tile with an official platform logo (Simple Icons, CC0).
 const fs = require('fs');
 const path = require('path');
@@ -90,7 +98,7 @@ V[4] = () => ({ w: 860, h: 820, html: `
       <div class="bub in">Thursday morning please!</div>
       <div class="bub out gold">Booked: Thursday 9:00 AM. You will get a reminder the day before.</div>
     </div>`, { style: 'position:absolute;left:220px;top:0;transform:scale(.95);transform-origin:top center' })}
-  <div class="float card" style="left:0;top:240px;padding:24px 28px;text-align:center"><div style="position:absolute;left:50%;top:-80px;transform:translateX(-50%);width:120px"><img src="assets/3d/stopwatch.png" style="width:120px;filter:drop-shadow(0 8px 8px rgba(30,10,60,.3))"></div><div class="ttl" style="font-size:54px;line-height:1;margin-top:40px">0:04</div><div class="muted" style="font-size:17px;margin-top:6px">first reply time</div></div>
+  <div class="float card" style="left:0;top:240px;padding:24px 28px;text-align:center"><div style="position:absolute;left:50%;top:-80px;transform:translateX(-50%);width:120px">${tile('stopwatch', 90, 'gold')}</div><div class="ttl" style="font-size:54px;line-height:1;margin-top:40px">0:04</div><div class="muted" style="font-size:17px;margin-top:6px">first reply time</div></div>
   <div class="float pill gold" style="right:0;top:520px;font-size:20px;padding:14px 22px;box-shadow:0 14px 26px -10px rgba(0,0,0,.4)">${ic('bolt')} Instant reply on</div>
   ${obj('ice', 150, 'right:40px;top:150px;transform:rotate(8deg)')}
   ${floor}` });
@@ -109,7 +117,7 @@ V[5] = () => ({ w: 900, h: 720, html: `
       <div class="bub out gold" style="font-size:19px">${ic('calCheck')} You are booked for Saturday, 10:00 AM.</div>
     </div>
   </div>
-  <div class="float card-dark" style="left:0;top:90px;padding:18px 22px;display:flex;align-items:center;gap:12px;font-family:Sora;font-weight:700;font-size:24px"><img src="assets/3d/moon.png" style="width:44px;filter:drop-shadow(0 8px 8px rgba(30,10,60,.3))">2:14 AM</div>
+  <div class="float card-dark" style="left:0;top:90px;padding:18px 22px;display:flex;align-items:center;gap:12px;font-family:Sora;font-weight:700;font-size:24px">${tile('moon', 44, 'gold')}2:14 AM</div>
   ${obj('robot', 190, 'right:-30px;top:150px;transform:rotate(6deg)')}
   <div class="float pill green" style="right:10px;top:470px;font-size:19px;padding:14px 20px;box-shadow:0 14px 26px -12px rgba(0,0,0,.4)">${ic('check')} Lead qualified</div>
   ${floor}` });
@@ -255,7 +263,7 @@ V[14] = () => {
       ${cm(1, 'YB', 'yourbrand', 'Thanks Tom! Part two drops Friday.', 15, true)}
     </div>
     ${obj('heart', 130, 'left:-10px;top:470px;transform:rotate(-12deg)')}${obj('wave', 130, 'right:-10px;top:460px')}
-    <div class="float card-dark" style="right:0;top:0;padding:16px 22px;display:flex;align-items:center;gap:12px"><img src="assets/3d/speech.png" style="width:40px;filter:drop-shadow(0 8px 8px rgba(30,10,60,.3))"><span class="ttl" style="font-size:21px">100% replied</span></div>
+    <div class="float card-dark" style="right:0;top:0;padding:16px 22px;display:flex;align-items:center;gap:12px">${tile('speech', 40, 'gold')}<span class="ttl" style="font-size:21px">100% replied</span></div>
     ${floor}` };
 };
 
@@ -266,7 +274,7 @@ V[15] = () => {
     <div class="card" style="position:absolute;left:40px;top:50px;width:820px;padding:28px">
       <div class="row" style="justify-content:space-between;margin-bottom:20px"><div class="ttl" style="font-size:26px">Next week</div><span class="pill soft" style="font-size:16px;padding:8px 14px;margin-right:150px">${ic('cal')} 5 posts</span></div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px">
-        ${d.map(([day, f, c], i) => `<div style="border-radius:15px;background:#F6F6FF;padding:14px;height:250px;display:flex;flex-direction:column;gap:10px"><div class="ttl" style="font-size:18px;color:#5E5675">${day}</div><div class="avatar ${c}" style="border-radius:12px;height:120px;width:100%;font-size:16px;display:grid;place-items:center"><img src="assets/3d/${f === 'Reel' ? 'clapper' : f === 'Carousel' ? 'picture' : f === 'Story' ? 'mobile' : 'writing'}.png" style="width:78px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.3))"></div><div style="font-size:16px;font-weight:700">${f}</div><div style="height:8px;width:${70 - i * 6}%;border-radius:4px;background:#E2DFF0"></div></div>`).join('')}
+        ${d.map(([day, f, c], i) => `<div style="border-radius:15px;background:#F6F6FF;padding:14px;height:250px;display:flex;flex-direction:column;gap:10px"><div class="ttl" style="font-size:18px;color:#5E5675">${day}</div><div class="avatar ${c}" style="border-radius:12px;height:120px;width:100%;font-size:16px;display:grid;place-items:center"><span style="font-size:52px;color:#fff">${ic(f === 'Reel' ? 'video' : f === 'Carousel' ? 'layers' : f === 'Story' ? 'mobile' : 'type')}</span></div><div style="font-size:16px;font-weight:700">${f}</div><div style="height:8px;width:${70 - i * 6}%;border-radius:4px;background:#E2DFF0"></div></div>`).join('')}
       </div>
     </div>
     ${obj('spiralcal', 150, 'left:-40px;top:400px;transform:rotate(-8deg)')}
@@ -280,7 +288,7 @@ V[16] = () => {
   return { w: 900, h: 640, html: `
     <svg class="float" style="left:0;top:0" width="900" height="640" fill="none" stroke="var(--line)" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round"><path d="M450 320 C 330 320 300 140 200 130"/><path d="M450 320 C 570 320 600 140 700 130"/><path d="M450 320 C 330 320 300 500 200 510"/><path d="M450 320 C 570 320 600 500 700 510"/></svg>
     ${out('clapper', 'Reel', 40, 30)}${out('picture', 'Carousel', 660, 30)}${out('mobile', 'Story', 40, 410)}${out('writing', 'Caption', 660, 410)}${obj('recycle', 110, 'left:395px;top:40px')}
-    <div class="float" style="left:330px;top:200px;width:240px;height:240px;border-radius:50%;background:linear-gradient(160deg,#FFD56B,#FFB317 60%,#F0A000);box-shadow:0 30px 60px -20px rgba(10,4,24,.8),inset 0 4px 10px rgba(255,255,255,.6),inset 0 -12px 24px rgba(160,90,0,.35);display:grid;place-items:center;text-align:center;color:#1E1233"><div><img src="assets/3d/bulb.png" style="width:110px;filter:drop-shadow(0 8px 8px rgba(30,10,60,.3))"><div class="ttl" style="font-size:26px">1 idea</div></div></div>` };
+    <div class="float" style="left:330px;top:200px;width:240px;height:240px;border-radius:50%;background:linear-gradient(160deg,#FFD56B,#FFB317 60%,#F0A000);box-shadow:0 30px 60px -20px rgba(10,4,24,.8),inset 0 4px 10px rgba(255,255,255,.6),inset 0 -12px 24px rgba(160,90,0,.35);display:grid;place-items:center;text-align:center;color:#1E1233"><div>${tile('bulb', 90, 'gold')}<div class="ttl" style="font-size:26px">1 idea</div></div></div>` };
 };
 
 // 17. Bio is a landing page
@@ -380,7 +388,7 @@ V[22] = () => ({ w: 920, h: 660, html: `
   <div class="float pill gold" style="left:330px;top:132px;font-size:16px;padding:6px 12px">Message first</div>
   <div class="float card" style="right:0;top:220px;padding:22px;display:flex;flex-direction:column;gap:12px;align-items:center;opacity:.9"><div class="muted" style="font-size:15px;font-weight:600">Colors later</div>${['#412B67', '#FFB317', '#F6F6FF', '#1E1233'].map((c) => `<div style="width:64px;height:40px;border-radius:10px;background:${c};border:1px solid #E2DFF0"></div>`).join('')}</div>
   ${obj('palette', 150, 'right:-20px;top:60px;transform:rotate(10deg)')}${obj('ruler', 120, 'left:560px;top:480px')}
-  <div class="float card-dark" style="left:0;top:480px;padding:18px 22px;display:flex;align-items:center;gap:12px"><img src="assets/3d/hourglass.png" style="width:44px;filter:drop-shadow(0 8px 8px rgba(30,10,60,.3))"><span class="ttl" style="font-size:24px">5 second test</span></div>
+  <div class="float card-dark" style="left:0;top:480px;padding:18px 22px;display:flex;align-items:center;gap:12px">${tile('hourglass', 44, 'gold')}<span class="ttl" style="font-size:24px">5 second test</span></div>
   ${floor}` });
 
 // 23. WordPress speed
@@ -439,7 +447,7 @@ V[25] = () => ({ w: 920, h: 660, html: `
   </div>
   ${obj('search', 180, 'left:60px;top:380px;transform:rotate(-10deg)')}${obj('sparkles', 110, 'right:-20px;top:150px')}
   <div class="card-dark" style="position:absolute;left:440px;top:240px;width:420px;padding:24px">
-    <div class="row" style="gap:10px;color:#FFB317;font-size:17px;font-weight:600"><img src="assets/3d/robot.png" style="width:34px;filter:drop-shadow(0 8px 8px rgba(30,10,60,.3))"> AI answer</div>
+    <div class="row" style="gap:10px;color:#FFB317;font-size:17px;font-weight:600">${tile('robot', 34, 'gold')} AI answer</div>
     <div style="font-size:18px;line-height:1.5;margin-top:10px;color:rgba(255,255,255,.9)">Top options nearby include <span style="background:#FFB317;color:#1E1233;border-radius:5px;padding:1px 6px;font-weight:700">Your Business</span>, known for same-week visits and strong reviews.</div>
     <div class="row" style="gap:8px;margin-top:14px"><span class="pill" style="font-size:13px;padding:6px 10px;background:rgba(255,255,255,.1);color:#fff">${ic('link')} yourbusiness.com</span></div>
   </div>
@@ -491,7 +499,7 @@ V[28] = () => {
 V[29] = () => ({ w: 900, h: 660, html: `
   <div class="card" style="position:absolute;left:60px;top:30px;width:480px;padding:28px">
     <div class="row" style="gap:18px">${tile('technologist', 90)}<div><div class="ttl" style="font-size:25px">Aisha M.</div><div class="muted" style="font-size:17px">Dedicated VA, CRM and admin</div><div class="row" style="gap:8px;margin-top:8px"><span style="width:10px;height:10px;border-radius:50%;background:#22A06B"></span><span style="font-size:15px;font-weight:600;color:#137A4D">Working now</span></div></div></div>
-    <div style="margin:22px 0;padding:18px;border-radius:15px;background:#F6F6FF;display:flex;justify-content:space-between;align-items:center"><div><div class="muted" style="font-size:15px">Tracked today</div><div class="ttl" style="font-size:36px;font-variant-numeric:tabular-nums">04:32:18</div></div><img src="assets/3d/stopwatch.png" style="width:80px;filter:drop-shadow(0 8px 8px rgba(30,10,60,.3))"></div>
+    <div style="margin:22px 0;padding:18px;border-radius:15px;background:#F6F6FF;display:flex;justify-content:space-between;align-items:center"><div><div class="muted" style="font-size:15px">Tracked today</div><div class="ttl" style="font-size:36px;font-variant-numeric:tabular-nums">04:32:18</div></div>${tile('stopwatch', 80, 'gold')}</div>
     <div class="ttl" style="font-size:19px;margin-bottom:8px">Daily update</div>
     ${['Inbox cleared, 48 emails', 'CRM updated, 22 leads', 'Calendar booked for Friday'].map((t) => `<div class="row" style="gap:12px;padding:8px 0;font-size:18px"><div class="chk" style="width:32px;height:32px">${ic('check')}</div>${t}</div>`).join('')}
   </div>
@@ -518,4 +526,5 @@ V[30] = () => {
     <div class="float" style="left:0;top:420px;padding:20px 26px;border-radius:15px;background:linear-gradient(180deg,#FFCB55,#FFB317);color:#1E1233;box-shadow:0 20px 36px -14px rgba(10,4,24,.7)"><div style="font-size:15px;font-weight:600">New hires needed</div><div class="ttl" style="font-size:44px;line-height:1">0</div></div>` };
 };
 
+V.setTheme = (t) => { THEME = t; SEQ = 0; };
 module.exports = V;
