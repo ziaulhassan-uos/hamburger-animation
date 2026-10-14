@@ -1,0 +1,6 @@
+node_modules/
+studio/.venv/
+studio/out/
+studio/hyperframes/renders/
+__pycache__/
+studio/hyperframes/.hyperframes/
