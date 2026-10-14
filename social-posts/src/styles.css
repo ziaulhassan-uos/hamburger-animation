@@ -232,8 +232,8 @@ body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
 /* ---------- Revision: centered layout, icon-only logo, plain backgrounds ---------- */
 .bg-grid, .bg-num, .glow { display: none !important; }
 .top { justify-content: center; }
-.logo-icon { width: 76px; height: 76px; display: block; object-fit: contain; }
-.square .logo-icon { width: 64px; height: 64px; }
+.logo-icon { width: 88px; height: 88px; display: block; object-fit: contain; }
+.square .logo-icon { width: 70px; height: 70px; }
 .copy { margin-left: auto; margin-right: auto; text-align: center; margin-top: 40px; }
 .square .copy { margin-top: 26px; }
 .story .copy { margin-top: 60px; }
