@@ -50,7 +50,7 @@ OUT_DIR=/tmp/hi DSF=1.2 FORMAT=portrait node build.js && SRC_DIR=/tmp/hi/1080x13
 
 ## Layout
 
-- Minimal: one focal visual per post, centered copy, a 3D CTA button under the description, and no handle or footer text.
+- Minimal: one focal visual per post, centered copy, no CTA button, and no handle or footer text. Backgrounds alternate plain Deep Purple and Light Purple in a checkerboard across the profile grid.
 - The visual style rotates through photo heroes with feature chips, 3D renders with chips, message-pair cards, keycaps, notification pills and simple UI pieces, so neighbouring posts look different.
 - Orange posts use dark headings and descriptions.
 

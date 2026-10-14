@@ -17,8 +17,9 @@ const DSF = Number(process.env.DSF || 1);
 const ONLY_FORMAT = process.env.FORMAT;
 const pad = (n) => String(n).padStart(2, '0');
 
-// All posts use the light purple (#F6F6FF) background; assets carry the orange and purple.
-const themeFor = () => 'lav';
+// Plain backgrounds alternate Deep Purple (#412B67) and Light Purple (#F6F6FF) in a checkerboard,
+// read from the top-left of the finished grid (post 30 is top-left).
+const themeFor = (n) => ((posts.length - n) % 2 ? 'lav' : 'dark');
 
 // Logo icon. Drop the official files into assets/logo/ as icon-light.(svg|png) for
 // dark backgrounds and icon-dark.(svg|png) for light backgrounds; a placeholder
@@ -41,7 +42,7 @@ function page(p, fmt) {
   return `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="styles.css"></head><body>
   <div class="post ${fmt.key} theme-${theme} align-center" style="height:${fmt.h}px">
     <img class="wm" src="${wmFor(theme)}" alt="">
-    <section class="copy"><h1 class="hook ${p.size || ''}">${hook}</h1><p class="body">${p.body}</p><div class="cta-row"><div class="cta">${tc(p.cta)}<span class="arrow">${ic('arrow')}</span></div></div></section>
+    <section class="copy"><h1 class="hook ${p.size || ''}">${hook}</h1><p class="body">${p.body}</p></section>
     <div class="visual-wrap"><div class="visual" style="width:${v.w}px;height:${v.h}px">${v.html}</div></div>
   </div>
   <script>
