@@ -28,18 +28,20 @@ const logoIcon = (theme) => {
   return f ? `<img class="logo-icon" src="${f}" alt="Inverto Digital">` : '<div class="logo-mark"></div>';
 };
 
+const tc = (t) => t.replace(/(^|[\s*-])([a-z])/g, (m, a, b) => a + b.toUpperCase());
+
 function page(p, fmt) {
   const theme = themeFor(p.n);
   V.setTheme(theme);
   const v = V[p.n]();
   // Title Case: first letter of every word capitalized, rest left as written (keeps CRM, GHL, AI, DMs).
-  const hook = p.hook.replace(/(^|[\s*])([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/\*(.+?)\*/g, '<em>$1</em>');
+  const hook = tc(p.hook).replace(/\*(.+?)\*/g, '<em>$1</em>');
   return `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="styles.css"></head><body>
   <div class="post ${fmt.key} theme-${theme} align-center" style="height:${fmt.h}px">
     <header class="top">${logoIcon(theme)}</header>
-    <section class="copy"><span class="tag">${p.cat}</span><h1 class="hook ${p.size || ''}">${hook}</h1><p class="body">${p.body}</p></section>
+    <section class="copy"><h1 class="hook ${p.size || ''}">${hook}</h1><p class="body">${p.body}</p><div class="cta-row"><div class="cta">${tc(p.cta)}<span class="arrow">${ic('arrow')}</span></div></div></section>
     <div class="visual-wrap"><div class="visual" style="width:${v.w}px;height:${v.h}px">${v.html}</div></div>
-    <footer class="foot"><div class="cta">${p.cta}<span class="arrow">${ic('arrow')}</span></div><div class="handle">@invertodigital<small>Save &amp; share</small></div></footer>
+    <footer class="foot"><div class="handle">@invertodigital<small>Save &amp; share</small></div></footer>
   </div>
   <script>
     window.__fit = () => {

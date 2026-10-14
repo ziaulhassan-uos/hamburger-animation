@@ -16,7 +16,7 @@ Type: Sora (headings), Inter (body). Cards use a 15px radius and purple-tinted s
 ## Layout
 
 - 1080px canvas, 80px side margins. All copy is centered.
-- Stack, top to bottom: logo icon, category tag, hook (Title Case, no rule underneath), body, hero visual, CTA button, handle.
+- Stack, top to bottom: logo icon, hook (Title Case, no rule underneath), body, 3D CTA button, hero visual, handle. No category label.
 - Logo icon: silver (light) version on Deep Purple and Gold posts, purple (dark) version on White and Lavender posts.
 - Backgrounds are flat brand colors with no grid or numbering: Deep Purple #412B67 (odd posts), White and Lavender (even posts), and Gold #FFB317 for the highlighted posts 4, 10, 16, 22 and 28.
 - Highlighted words: gold text on purple, a gold marker under purple text on white and lavender, and purple text on gold.

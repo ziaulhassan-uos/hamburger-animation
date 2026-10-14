@@ -295,3 +295,27 @@ body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
 /* No rule under headings: keep spacing between hook and body */
 .hook { margin-bottom: 30px; } .square .hook { margin-bottom: 18px; } .story .hook { margin-bottom: 36px; }
 .theme-gold .logo-icon { filter: drop-shadow(0 3px 6px rgba(120,70,0,.45)) drop-shadow(0 1px 1px rgba(65,43,103,.35)); }
+
+/* ---------- 3D CTA under the description ---------- */
+.copy { text-align: center; }
+.body { text-align: center; }
+.cta-row { display: flex; justify-content: center; margin-top: 40px; }
+.square .cta-row { margin-top: 24px; }
+.cta, .theme-dark .cta { position: relative; display: inline-flex; align-items: center; gap: 22px;
+  font-family: "Sora"; font-weight: 700; font-size: 30px; letter-spacing: -0.01em; color: #2F1E4C;
+  padding: 18px 18px 18px 40px; border-radius: 999px;
+  background: linear-gradient(180deg, #FFC43F 0%, #FFB317 55%, #FCAA05 100%);
+  border: 2px solid #F5A300;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(180,100,0,.15), 0 8px 0 #CF8600, 0 20px 30px -10px rgba(150,85,0,.55); }
+.theme-dark .cta { box-shadow: inset 0 2px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(180,100,0,.15), 0 8px 0 #CF8600, 0 22px 34px -10px rgba(8,2,20,.7); }
+.cta .arrow, .theme-gold .cta .arrow { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: #412B67;
+  box-shadow: inset 0 2px 3px rgba(255,255,255,.18), inset 0 -3px 6px rgba(10,4,24,.4), 0 3px 6px rgba(65,43,103,.35); }
+.cta .arrow svg { width: 28px; height: 28px; stroke: #FFB317; stroke-width: 2.6; }
+.theme-gold .cta { color: #fff; background: linear-gradient(180deg, #5A3E8C 0%, #412B67 60%, #3A2560 100%); border-color: #4C3770;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.2), 0 8px 0 #24163D, 0 20px 30px -10px rgba(36,22,61,.55); }
+.theme-gold .cta .arrow { background: #FFB317; box-shadow: inset 0 2px 3px rgba(255,255,255,.6), inset 0 -3px 6px rgba(150,80,0,.35); }
+.theme-gold .cta .arrow svg { stroke: #2F1E4C; }
+.square .cta { font-size: 25px; padding: 13px 13px 13px 32px; gap: 18px; }
+.square .cta .arrow { width: 48px; height: 48px; }
+.story .cta { font-size: 34px; }
+.foot { margin-top: 10px; }
