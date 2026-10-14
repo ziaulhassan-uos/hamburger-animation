@@ -1,0 +1,26 @@
+{
+  "name": "flight-clip",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Remotion clip: animated flight from Pakistan to the USA on a world map",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts FlightPakistanToUSA out/flight-pakistan-usa.mp4",
+    "render:vertical": "remotion render src/index.ts FlightPakistanToUSAVertical out/flight-pakistan-usa-vertical.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.535",
+    "d3-geo": "3.1.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.535",
+    "topojson-client": "3.1.0",
+    "world-atlas": "2.0.2"
+  },
+  "devDependencies": {
+    "@types/d3-geo": "3.1.0",
+    "@types/react": "18.3.12",
+    "@types/topojson-client": "3.1.5",
+    "typescript": "5.6.3"
+  }
+}
