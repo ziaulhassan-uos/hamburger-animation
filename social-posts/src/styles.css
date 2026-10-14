@@ -322,3 +322,10 @@ body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
 
 /* Highlighted heading words: color only, no background marker */
 .hook em::after { display: none !important; }
+
+/* Orange posts: light heading and description */
+.theme-gold .hook { color: #FFFFFF; text-shadow: 0 2px 12px rgba(150,85,0,.25); }
+.theme-gold .hook em { color: var(--purple); text-shadow: none; }
+.theme-gold .body { color: #FFFFFF; text-shadow: 0 1px 6px rgba(150,85,0,.25); }
+.theme-gold .body b { color: var(--purple); text-shadow: none; }
+.theme-gold .handle { color: #FFFFFF; }

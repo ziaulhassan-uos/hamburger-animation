@@ -18,12 +18,12 @@ Type: Sora (headings), Inter (body). Cards use a 15px radius and purple-tinted s
 - 1080px canvas, 80px side margins. All copy is centered.
 - Stack, top to bottom: logo icon, hook (Title Case, no rule underneath), body, 3D CTA button, hero visual, handle. No category label.
 - Logo icon: silver (light) version on Deep Purple and Gold posts, purple (dark) version on White and Lavender posts.
-- Backgrounds are flat brand colors with no grid or numbering. Profile grid plan, repeating every 3x3 block from the top-left of the finished grid (post 30 is top-left, since Instagram shows newest first):
+- Backgrounds are flat brand colors with no grid or numbering. Profile grid plan, read from the top-left of the finished grid (post 30 is top-left, since Instagram shows newest first). The rows alternate:
   - Purple, Light Purple, Purple
   - Light Purple, Orange, Light Purple
-  - Purple, Light Purple, Purple
 
-  Purple is #412B67, Light Purple is #F6F6FF and Orange is #FFB317 (posts 8, 17 and 26). Post the images in number order, 1 to 30.
+  So the middle post of every second row is orange. Purple is #412B67, Light Purple is #F6F6FF and Orange is #FFB317 (posts 2, 8, 14, 20 and 26). Post the images in number order, 1 to 30.
+- On orange posts the heading and description are white, highlighted words are purple, and the logo is the light version.
 - Highlighted words in headings change color only, with no background: gold on purple posts and purple on light purple and orange posts.
 
 ## Editing and rebuilding

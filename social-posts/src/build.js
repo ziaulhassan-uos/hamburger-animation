@@ -16,12 +16,11 @@ const OUT = path.join(__dirname, '..', 'output');
 const pad = (n) => String(n).padStart(2, '0');
 
 // Profile grid plan, read from the top-left of the finished 30-post grid
-// (Instagram shows newest first, so post 30 is top-left). Every 3x3 block:
+// (Instagram shows newest first, so post 30 is top-left). Rows alternate:
 //   purple, light purple, purple
 //   light purple, orange, light purple
-//   purple, light purple, purple
-const BLOCK = ['dark', 'lav', 'dark', 'lav', 'gold', 'lav', 'dark', 'lav', 'dark'];
-const themeFor = (n) => BLOCK[(posts.length - n) % 9];
+const ROWS = [['dark', 'lav', 'dark'], ['lav', 'gold', 'lav']];
+const themeFor = (n) => { const pos = posts.length - n; return ROWS[Math.floor(pos / 3) % 2][pos % 3]; };
 
 // Logo icon. Drop the official files into assets/logo/ as icon-light.(svg|png) for
 // dark backgrounds and icon-dark.(svg|png) for light backgrounds; a placeholder
