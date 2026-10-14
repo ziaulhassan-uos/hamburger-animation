@@ -6,7 +6,9 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts FlightPakistanToUSA out/flight-pakistan-usa.mp4",
-    "render:vertical": "remotion render src/index.ts FlightPakistanToUSAVertical out/flight-pakistan-usa-vertical.mp4"
+    "render:vertical": "remotion render src/index.ts FlightPakistanToUSAVertical out/flight-pakistan-usa-vertical.mp4",
+    "render:pakistan": "remotion render src/index.ts PakistanHighlight out/pakistan-highlight.mp4",
+    "render:pakistan:vertical": "remotion render src/index.ts PakistanHighlightVertical out/pakistan-highlight-vertical.mp4"
   },
   "dependencies": {
     "@remotion/cli": "4.0.535",
