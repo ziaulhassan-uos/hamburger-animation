@@ -24,7 +24,7 @@ const themeFor = (n) => (n % 2 ? 'dark' : n % 6 === 4 ? 'gold' : (n / 2) % 2 ? '
 // mark is used until they exist.
 const findLogo = (v) => ['svg', 'png', 'webp'].map((e) => `assets/logo/icon-${v}.${e}`).find((f) => fs.existsSync(path.join(__dirname, f)));
 const logoIcon = (theme) => {
-  const f = findLogo(theme === 'dark' ? 'light' : 'dark');
+  const f = findLogo(theme === 'dark' || theme === 'gold' ? 'light' : 'dark');
   return f ? `<img class="logo-icon" src="${f}" alt="Inverto Digital">` : '<div class="logo-mark"></div>';
 };
 
@@ -32,11 +32,12 @@ function page(p, fmt) {
   const theme = themeFor(p.n);
   V.setTheme(theme);
   const v = V[p.n]();
-  const hook = p.hook.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Title Case: first letter of every word capitalized, rest left as written (keeps CRM, GHL, AI, DMs).
+  const hook = p.hook.replace(/(^|[\s*])([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/\*(.+?)\*/g, '<em>$1</em>');
   return `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="styles.css"></head><body>
   <div class="post ${fmt.key} theme-${theme} align-center" style="height:${fmt.h}px">
     <header class="top">${logoIcon(theme)}</header>
-    <section class="copy"><span class="tag">${p.cat}</span><h1 class="hook ${p.size || ''}">${hook}</h1><div class="rule"></div><p class="body">${p.body}</p></section>
+    <section class="copy"><span class="tag">${p.cat}</span><h1 class="hook ${p.size || ''}">${hook}</h1><p class="body">${p.body}</p></section>
     <div class="visual-wrap"><div class="visual" style="width:${v.w}px;height:${v.h}px">${v.html}</div></div>
     <footer class="foot"><div class="cta">${p.cta}<span class="arrow">${ic('arrow')}</span></div><div class="handle">@invertodigital<small>Save &amp; share</small></div></footer>
   </div>

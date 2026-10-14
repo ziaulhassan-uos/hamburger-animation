@@ -291,3 +291,7 @@ body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
 .square .top .logo-mark::before { left: 15px; top: 15px; width: 30px; height: 30px; border-width: 7px; }
 .v-gold svg { color: #2F1E4C; } .v-purple svg { color: #FFB317; } .v-white svg { color: #412B67; }
 .tile3d svg { color: #FFB317; } .tile3d.gold svg { color: #2F1E4C; }
+
+/* No rule under headings: keep spacing between hook and body */
+.hook { margin-bottom: 30px; } .square .hook { margin-bottom: 18px; } .story .hook { margin-bottom: 36px; }
+.theme-gold .logo-icon { filter: drop-shadow(0 3px 6px rgba(120,70,0,.45)) drop-shadow(0 1px 1px rgba(65,43,103,.35)); }
