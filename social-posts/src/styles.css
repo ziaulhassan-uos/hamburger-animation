@@ -319,3 +319,6 @@ body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
 .square .cta .arrow { width: 48px; height: 48px; }
 .story .cta { font-size: 34px; }
 .foot { margin-top: 10px; }
+
+/* Highlighted heading words: color only, no background marker */
+.hook em::after { display: none !important; }

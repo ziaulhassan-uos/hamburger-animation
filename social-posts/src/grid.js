@@ -16,7 +16,7 @@ body{background:#fff;margin:0;font-family:Inter} .wrap{width:1080px;padding:48px
 h2{font-family:Sora;font-size:34px;margin:0 0 14px} .st{display:flex;gap:40px;font-size:22px;margin-bottom:14px} .st b{font-family:Sora}
 p{font-size:20px;line-height:1.45;margin:0;color:#222} .g{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-top:1px solid #ddd;padding-top:4px}
 .g img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}</style></head><body><div class="wrap">
-<div class="prof"><div class="pic"><div><div class="logo-mark"></div></div></div><div><h2>invertodigital</h2>
+<div class="prof"><div class="pic"><div><img src="file://${path.join(__dirname, "assets/logo/icon-light.png")}" style="width:96px;height:96px;object-fit:contain"></div></div><div><h2>invertodigital</h2>
 <div class="st"><span><b>30</b> posts</span><span><b>GHL</b> &amp; CRM</span><span><b>Growth</b> systems</span></div>
 <p><b>Inverto Digital</b><br>GoHighLevel, automation, social, web and white-label fulfillment.<br>Book a discovery call below.</p></div></div>
 <div class="g">${tiles}</div></div></body></html>`;

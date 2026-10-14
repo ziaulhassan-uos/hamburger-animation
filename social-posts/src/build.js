@@ -15,9 +15,13 @@ const FORMATS = [
 const OUT = path.join(__dirname, '..', 'output');
 const pad = (n) => String(n).padStart(2, '0');
 
-// Checkerboard feed: odd posts dark purple, even posts alternate white and lavender.
-// Gold accent posts on every sixth slot (4, 10, 16, 22, 28) for highlighted topics.
-const themeFor = (n) => (n % 2 ? 'dark' : n % 6 === 4 ? 'gold' : (n / 2) % 2 ? 'white' : 'lav');
+// Profile grid plan, read from the top-left of the finished 30-post grid
+// (Instagram shows newest first, so post 30 is top-left). Every 3x3 block:
+//   purple, light purple, purple
+//   light purple, orange, light purple
+//   purple, light purple, purple
+const BLOCK = ['dark', 'lav', 'dark', 'lav', 'gold', 'lav', 'dark', 'lav', 'dark'];
+const themeFor = (n) => BLOCK[(posts.length - n) % 9];
 
 // Logo icon. Drop the official files into assets/logo/ as icon-light.(svg|png) for
 // dark backgrounds and icon-dark.(svg|png) for light backgrounds; a placeholder
