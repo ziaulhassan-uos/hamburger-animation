@@ -17,12 +17,8 @@ const DSF = Number(process.env.DSF || 1);
 const ONLY_FORMAT = process.env.FORMAT;
 const pad = (n) => String(n).padStart(2, '0');
 
-// Profile grid plan, read from the top-left of the finished 30-post grid
-// (Instagram shows newest first, so post 30 is top-left). Rows alternate:
-//   purple, light purple, purple
-//   light purple, orange, light purple
-const ROWS = [['dark', 'lav', 'dark'], ['lav', 'gold', 'lav']];
-const themeFor = (n) => { const pos = posts.length - n; return ROWS[Math.floor(pos / 3) % 2][pos % 3]; };
+// All posts use the light purple (#F6F6FF) background; assets carry the orange and purple.
+const themeFor = () => 'lav';
 
 // Logo icon. Drop the official files into assets/logo/ as icon-light.(svg|png) for
 // dark backgrounds and icon-dark.(svg|png) for light backgrounds; a placeholder
