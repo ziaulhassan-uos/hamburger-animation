@@ -112,7 +112,7 @@ body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
 
 /* ---------- Visual area ---------- */
 .visual-wrap { position: relative; z-index: 2; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; margin: 24px -40px 18px; }
-.visual { position: absolute; left: 50%; top: 50%; transform-origin: center center; }
+.visual { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 
 /* ---------- Footer ---------- */
 .foot { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -209,3 +209,21 @@ body { font-family: "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
 
 /* cursor */
 .cursor { width: 46px; height: 46px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.35)); }
+
+/* ---------- 3D PNG objects and brand tiles ---------- */
+.obj { position: absolute; z-index: 5; }
+.obj img { display: block; width: 100%; height: auto; position: relative; z-index: 1;
+  filter: drop-shadow(0 22px 20px rgba(30,10,60,.30)) drop-shadow(0 6px 6px rgba(30,10,60,.22)); }
+.theme-dark .obj img { filter: drop-shadow(0 24px 22px rgba(8,2,20,.55)) drop-shadow(0 6px 6px rgba(8,2,20,.4)); }
+.obj .floor { position: absolute; left: 14%; right: 14%; bottom: -10%; height: 16%; border-radius: 50%; z-index: 0;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(30,10,60,.38), transparent 72%); filter: blur(6px); }
+.theme-dark .obj .floor { background: radial-gradient(50% 50% at 50% 50%, rgba(5,0,15,.75), transparent 72%); }
+.obj.glow-gold::before { content: ""; position: absolute; inset: 8%; border-radius: 50%; background: rgba(255,179,23,.35); filter: blur(40px); z-index: 0; }
+.tile3d { display: grid; place-items: center; flex: none; border-radius: 16px; background: linear-gradient(160deg, #FFFFFF, #EEECF8);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -3px 6px rgba(65,43,103,.08), 0 8px 16px -8px rgba(40,20,80,.35); }
+.tile3d img { width: 74%; height: auto; filter: drop-shadow(0 6px 5px rgba(30,10,60,.28)); }
+.tile3d.gold { background: linear-gradient(160deg, #FFE08F, #FFB317); }
+.brand { display: grid; place-items: center; flex: none; border-radius: 26%; position: relative; overflow: hidden;
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.35), inset 0 -6px 12px rgba(0,0,0,.18), 0 16px 26px -10px rgba(20,8,40,.55), 0 4px 6px -2px rgba(20,8,40,.3); }
+.brand::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 48%; background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0)); }
+.brand svg { width: 56%; height: 56%; fill: #fff; position: relative; z-index: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,.2)); }

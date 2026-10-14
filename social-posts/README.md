@@ -34,4 +34,11 @@ node build.js 4 17     # selected posts
 node grid.js           # grid preview
 ```
 
+## Image assets
+
+- `src/assets/3d/`: 72 transparent 3D PNG objects from Microsoft Fluent Emoji 3D (MIT license, via the `@lobehub/fluent-emoji-3d` package). Source size is 256px, so they are kept at about 250px or smaller on the canvas to stay sharp.
+- `src/assets/brands/`: platform logos (Instagram, Facebook, WordPress, Shopify, Google, n8n, Gmail, Sheets and others) from Simple Icons (CC0), shown as glossy app tiles. Logos stay the property of their owners and are used only to name the platforms.
+- Shadows: every 3D object gets two drop shadows plus a blurred contact shadow underneath. On purple posts the shadows are tinted dark purple, never black.
+- In `src/visuals.js`: `obj(name, size, style)` places a 3D object, `tile(name, size)` puts one inside a UI tile, and `brand(name, size)` adds a logo tile.
+
 Requires Node with Playwright (Chromium). Fonts are bundled in `src/fonts` (SIL Open Font License).

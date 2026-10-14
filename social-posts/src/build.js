@@ -33,8 +33,21 @@ function page(p, fmt) {
   <script>
     window.__fit = () => {
       const wrap = document.querySelector('.visual-wrap'), vis = document.querySelector('.visual');
-      const s = Math.min(wrap.clientWidth * 0.96 / ${v.w}, wrap.clientHeight * 0.96 / ${v.h}, ${fmt.key === 'story' ? 1.12 : 1});
-      vis.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+      vis.style.transform = 'none';
+      const o = vis.getBoundingClientRect();
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      const els = new Set([...vis.children, ...vis.querySelectorAll('.obj, .float')]);
+      els.forEach((el) => {
+        if (el.matches('.shadow-floor, .floor')) return;
+        const r = el.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        x0 = Math.min(x0, r.left - o.left); y0 = Math.min(y0, r.top - o.top);
+        x1 = Math.max(x1, r.right - o.left); y1 = Math.max(y1, r.bottom - o.top);
+      });
+      const W = wrap.clientWidth, H = wrap.clientHeight, bw = x1 - x0, bh = y1 - y0;
+      const s = Math.min(W * 0.95 / bw, H * 0.94 / bh, ${fmt.key === 'story' ? 1.3 : 1.22});
+      const tx = W / 2 - s * (x0 + bw / 2), ty = H / 2 - s * (y0 + bh / 2);
+      vis.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + s + ')';
       return s;
     };
   </script></body></html>`;
