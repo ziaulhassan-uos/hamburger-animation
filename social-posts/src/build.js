@@ -28,6 +28,7 @@ const themeFor = (n) => { const pos = posts.length - n; return ROWS[Math.floor(p
 // dark backgrounds and icon-dark.(svg|png) for light backgrounds; a placeholder
 // mark is used until they exist.
 const findLogo = (v) => ['svg', 'png', 'webp'].map((e) => `assets/logo/icon-${v}.${e}`).find((f) => fs.existsSync(path.join(__dirname, f)));
+const wmFor = (theme) => findLogo(theme === 'dark' ? 'light' : 'dark');
 const logoIcon = (theme) => {
   const f = findLogo(theme === 'dark' || theme === 'gold' ? 'light' : 'dark');
   return f ? `<img class="logo-icon" src="${f}" alt="Inverto Digital">` : '<div class="logo-mark"></div>';
@@ -43,10 +44,9 @@ function page(p, fmt) {
   const hook = tc(p.hook).replace(/\*(.+?)\*/g, '<em>$1</em>');
   return `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="styles.css"></head><body>
   <div class="post ${fmt.key} theme-${theme} align-center" style="height:${fmt.h}px">
-    <header class="top">${logoIcon(theme)}</header>
+    <img class="wm" src="${wmFor(theme)}" alt="">
     <section class="copy"><h1 class="hook ${p.size || ''}">${hook}</h1><p class="body">${p.body}</p><div class="cta-row"><div class="cta">${tc(p.cta)}<span class="arrow">${ic('arrow')}</span></div></div></section>
     <div class="visual-wrap"><div class="visual" style="width:${v.w}px;height:${v.h}px">${v.html}</div></div>
-    <footer class="foot"><div class="handle">@invertodigital<small>Save &amp; share</small></div></footer>
   </div>
   <script>
     window.__fit = () => {
@@ -63,10 +63,15 @@ function page(p, fmt) {
         x1 = Math.max(x1, r.right - o.left); y1 = Math.max(y1, r.bottom - o.top);
       });
       const W = wrap.clientWidth, H = wrap.clientHeight, bw = x1 - x0, bh = y1 - y0;
-      const s = Math.min(W * 0.95 / bw, H * 0.94 / bh, ${fmt.key === 'story' ? 1.3 : 1.22});
-      const tx = W / 2 - s * (x0 + bw / 2), ty = H / 2 - s * (y0 + bh / 2);
-      vis.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + s + ')';
-      return s;
+      const s = Math.min(W * 0.95 / bw, H * 0.94 / bh, ${fmt.key === 'story' ? 1.5 : 1.4});
+      const an = vis.querySelector('.anchor');
+      let cx = x0 + bw / 2;
+      if (an) { const r = an.getBoundingClientRect(); cx = r.left - o.left + r.width / 2; }
+      const half = Math.max(cx - x0, x1 - cx);
+      const s2 = Math.min(s, W * 0.97 / (2 * half));
+      const tx = W / 2 - s2 * cx, ty = H / 2 - s2 * (y0 + bh / 2);
+      vis.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + s2 + ')';
+      return s2;
     };
   </script></body></html>`;
 }

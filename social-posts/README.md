@@ -40,11 +40,18 @@ node grid.js           # grid preview
 OUT_DIR=/tmp/hi DSF=1.2 FORMAT=portrait node build.js && SRC_DIR=/tmp/hi/1080x1350_instagram-facebook-linkedin-feed DSF=3.5556 OUT_FILE=../output/instagram-grid-preview-4k.png node grid.js   # 4K grid
 ```
 
-## Image assets
+## Image assets and credits
 
-- No emoji artwork. The 3D icons are brand-colored badges (gold, purple or white faces with a bevel, a gloss highlight and a contact shadow) drawn from the stroke icon set in `src/icons.js`. Their colors follow each post's theme.
-- `src/assets/brands/`: platform logos from Simple Icons (CC0), shown as app tiles. The logos belong to their owners and are used only to name the platforms.
-- Logo: put the official icon files in `src/assets/logo/` (see the README in that folder).
-- In `src/visuals.js`: `obj(name, size, style)` places a 3D badge, `tile(name, size)` puts a small one inside a UI mockup, and `brand(name, size)` adds a logo tile.
+- `src/assets/3d/`: 20 realistic 3D renders from the free **Icons8 3D Kit** (github.com/icons8/3d-kit), recolored from orange to brand gold. **License: the free use requires a link back to Icons8 (https://icons8.com).** Add "3D illustrations by Icons8 (icons8.com)" to your website credits or an occasional caption, or buy an Icons8 plan to skip the link.
+- `src/assets/photos/`: 7 photos from **Unsplash** (Unsplash License: free for commercial use, no attribution required). Photographers: Guilain Demoutiers (man-laptop), GlassesShop (woman-laptop), May Gauthier (man-glasses), MD Duran (man-cap), Abenezer Shewaga (woman-arms), Mario La Pergola (woman-blonde), Cecep Rahmat (woman-phone). The source files are 400px, so photos are kept at circle and avatar sizes.
+- `src/assets/brands/`: platform logos from Simple Icons (CC0). The logos belong to their owners and are used only to name the platforms.
+- `src/assets/logo/`: the official Inverto Digital icon, used as a faint watermark at the top center of each post.
+- No emoji artwork is used anywhere.
+
+## Layout
+
+- Minimal: one focal visual per post, centered copy, a 3D CTA button under the description, and no handle or footer text.
+- The visual style rotates through photo heroes with feature chips, 3D renders with chips, message-pair cards, keycaps, notification pills and simple UI pieces, so neighbouring posts look different.
+- Orange posts use dark headings and descriptions.
 
 Requires Node with Playwright (Chromium). Fonts are bundled in `src/fonts` (SIL Open Font License).
